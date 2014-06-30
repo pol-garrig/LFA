@@ -1,6 +1,6 @@
 *.class
 .idea/
-poglaa.iml
+LFA.iml
 *.classpath
 *.project
 *.prefs
