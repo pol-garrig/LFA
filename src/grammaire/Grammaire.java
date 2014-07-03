@@ -23,7 +23,7 @@ public class Grammaire {
     // Précondition : doit appartenir aux symboles non terminaux.
     private Character axiome;
 
-    /*
+    /**
      * Constructeur par defaut.
      * Permet d'initialiser les différentes variables.
      */
@@ -31,5 +31,24 @@ public class Grammaire {
         nonTerminaux = new ArrayList<>();
         terminaux = new ArrayList<>();
         productions = new HashMap<>();
+        axiome = 'S';
+    }
+
+    /**
+     * Cette methode permet d'ajouter un caractere a la liste des symboles non terminaux.
+     *
+     * @param caractere
+     */
+    public void addSymboleNonTerminal (Character caractere) {
+        nonTerminaux.add(caractere);
+    }
+
+    /**
+     * Cette methode permet d'ajouter un entier a la liste des symboles terminaux.
+     *
+     * @param i
+     */
+    public void addSymboleTerminal (Integer i) {
+        terminaux.add(i);
     }
 }
