@@ -1,5 +1,7 @@
 package grammaire;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -20,4 +22,14 @@ public class Grammaire {
     // L'axiome
     // Précondition : doit appartenir aux symboles non terminaux.
     private Character axiome;
+
+    /*
+     * Constructeur par defaut.
+     * Permet d'initialiser les différentes variables.
+     */
+    public Grammaire () {
+        nonTerminaux = new ArrayList<>();
+        terminaux = new ArrayList<>();
+        productions = new HashMap<>();
+    }
 }
