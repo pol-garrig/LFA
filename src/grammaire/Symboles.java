@@ -10,7 +10,7 @@ public class Symboles {
     // & = epsilon
     private char[] terminaux = { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i',
             'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
-            'w', 'x', 'y', 'z', '&', '1', '0' };
+            'w', 'x', 'y', 'z', 'ε', '1', '0' };
     // L'axiome
     // Précondition : doit appartenir aux symboles non terminaux.
     private char axiome = 'S';

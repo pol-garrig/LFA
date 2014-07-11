@@ -1,0 +1,6 @@
+Grammaire = 
+S > a A b | a
+A > a A C | b
+C > a S b S | a b a
+B > d
+ceci est un texte

@@ -22,7 +22,7 @@ public class Lecture {
         symboles = new Symboles();
     }
 
-    private void lecture() throws IOException {
+    public void lecture() throws IOException {
         String fichier = "entre.txt";
         String key = "";
         String value = "";
@@ -66,6 +66,9 @@ public class Lecture {
         }
 
     }
+    public Grammaire getGrammaire(){
+        return grammaire;
+    }
 
     public static void main(String[] args) throws IOException {
         Lecture l = new Lecture();
@@ -73,5 +76,11 @@ public class Lecture {
         System.out.println("Non Terminaux = " + l.grammaire.getNonTerminaux());
         System.out.println("Terminaux = " + l.grammaire.getTerminaux());
         System.out.println("Producitons = " + l.grammaire.getProcutions());
+        //l.grammaire.suppressionInaccesible();
+        l.grammaire.suppressionImproductifs();
+        l.grammaire.suppressionInaccesible();
+        System.out.println("Terminaux = " + l.grammaire.getNonTerminaux());
+        
+        
     }
 }
