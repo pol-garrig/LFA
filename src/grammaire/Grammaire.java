@@ -570,6 +570,21 @@ public class Grammaire {
     }
 
     /**
+     * Ajoute une règle.
+     *
+     * @param nonTerminal le symbole non-terminal de la nouvelle règle
+     * @param production la ou les productions associées
+     */
+    private void ajouterRegle(String nonTerminal, String production) {
+        if(productions.get(nonTerminal) != null) {
+            ajouteProd(nonTerminal, production);
+        }
+        else {
+            productions.put(nonTerminal, production);
+        }
+    }
+
+    /**
      * Nettoie la grammaire.
      */
     public void nettoyer() {
@@ -599,9 +614,10 @@ public class Grammaire {
 
         // Crée les règles
         for (String term: terminaux) {
-            ajouteProd("C" + term, term);
+            ajouterRegle("C" + term, term);
         }
 
+        /*
         // Remplace dans les règles déjà existantes
         while(it.hasNext()) {
             for (String prod: produtions(productions.get(key))) {
@@ -611,6 +627,7 @@ public class Grammaire {
             }
             key = it.next();
         }
+        */
     }
 
     /**
@@ -625,7 +642,9 @@ public class Grammaire {
         lp.lecture();
         Grammaire g = lp.getGrammaire();
         System.out.println(g.productions);
+        g.traiterTerminauxChomsky();
+        System.out.println(g.productions);
         // System.out.println(g.nonTerminaux);
-        g.suppressionRenomage();
+        //g.suppressionRenomage();
     }
 }
