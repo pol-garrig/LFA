@@ -1,5 +1,8 @@
 package grammaire;
 
+/**
+ * Created by Fernando on 03/07/2014 for the project LFA.
+ */
 public class Symboles {
     // Liste des symboles non terminaux.
     private char[] nonTerminaux = { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
@@ -7,7 +10,7 @@ public class Symboles {
             'V', 'W', 'X', 'Y', 'Z' };
 
     // Liste des symboles terminaux.
-    // & = epsilon
+    // ε = epsilon
     private char[] terminaux = { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i',
             'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
             'w', 'x', 'y', 'z', 'ε', '1', '0' };

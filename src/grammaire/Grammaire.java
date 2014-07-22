@@ -42,25 +42,25 @@ public class Grammaire {
     }
 
     /**
-     * Methode pour suppimer les unaccesible
+     * Methode pour supprimer les inaccesibles
      */
     public void suppressionInaccesible() {
         List<String> temp = new ArrayList<>();
         String prod;
         int t = 1;
-        // On regarde les non terminaux qu'il y a dans laproductions de l'axiome
+        // On regarde les non terminaux qu'il y a dans les productions de l'axiome
         if (nonTerminaux.contains(axiome)) {
             temp.add(axiome);
             prod = productions.get(axiome + " ");
             for (int i = 0; i < nonTerminaux.size(); i++) {
-                // On regarde si les productions de l'axiome contiens des non
+                // On regarde si les productions de l'axiome contiennent des non
                 // terminaux
                 if (prod.contains(nonTerminaux.get(i))) {
                     temp.add(nonTerminaux.get(i));
                 }
             }
         } else {
-            temp.add("n'existe pas l'axiome");
+            temp.add("L'axiome n'existe pas.");
         }
         // On regarde les
         while (t != nonTerminaux.size() - 1) {
@@ -397,8 +397,8 @@ public class Grammaire {
     }
 
     /**
-     * Methode qui revoit true si un String (ou sub string)de une Liste et
-     * contenu dans une otro Liste
+     * Methode qui renvoit true si un String (ou sub string) d'une Liste est
+     * contenu dans une autre Liste
      * 
      * @param s
      * @param s2
@@ -456,7 +456,7 @@ public class Grammaire {
     }
 
     /**
-     * Elimine tous les repetition de un non terminal
+     * Elimine toutes les repetitions d'un non terminal
      * 
      * @param s
      */
