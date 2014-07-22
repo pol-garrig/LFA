@@ -1,0 +1,2 @@
+Grammaire.java :
+	- les méthodes qui ne seront pas appelées dans le menu doivent être mises en visibilité private
