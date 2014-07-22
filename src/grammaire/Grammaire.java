@@ -1,11 +1,7 @@
 package grammaire;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.omg.PortableServer.POA;
 
@@ -597,7 +593,24 @@ public class Grammaire {
      * Crée une règle par terminal et les remplace dans les autres règles.
      */
     private void traiterTerminauxChomsky() {
-        // TODO
+        Set<String> keys = productions.keySet();
+        Iterator<String> it = keys.iterator();
+        String key = it.next();
+
+        // Crée les règles
+        for (String term: terminaux) {
+            ajouteProd("C" + term, term);
+        }
+
+        // Remplace dans les règles déjà existantes
+        while(it.hasNext()) {
+            for (String prod: produtions(productions.get(key))) {
+                for (String term: terminaux) {
+                    prod.replace(term, "C" + term);
+                }
+            }
+            key = it.next();
+        }
     }
 
     /**
