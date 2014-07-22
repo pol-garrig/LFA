@@ -580,7 +580,31 @@ public class Grammaire {
         suppressionImproductifs();
         suppressionInaccesible();
         suppressionEpsilons();
+        // TODO Fernando
         //suppressionRenomage();
+    }
+
+    /**
+     * Met la grammaire sous forme normale de Chomsky.
+     */
+    public void Chomsky() {
+        nettoyer();
+        traiterTerminauxChomsky();
+        traiterReglesChomsky();
+    }
+
+    /**
+     * Crée une règle par terminal et les remplace dans les autres règles.
+     */
+    private void traiterTerminauxChomsky() {
+        // TODO
+    }
+
+    /**
+     * Traite récursivement les règles pour les mettre sous FNC.
+     */
+    private void traiterReglesChomsky() {
+        // TODO
     }
 
     public static void main(String[] args) throws IOException {
