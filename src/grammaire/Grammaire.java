@@ -150,9 +150,11 @@ public class Grammaire {
         // et pour finir on copie les productifs dans l'arraylist des non
         // terminaux
         nonTerminaux = copieList(p2);
-        System.out.println(nonTerminaux);
     }
 
+    /**
+     * Methode pour supprimer les Epsilons du productions
+     */
     public void suppressionEpsilons() {
         // liste des non terminaux avec epsilons
         List<String> prodEpsilon = new ArrayList<>();
@@ -235,6 +237,72 @@ public class Grammaire {
             productions = productionsSansEpsilons;
             System.out.println(productions);
         }
+    }
+
+    public void suppressionRenomage() {
+        Map<String, List<String>> ren = new HashMap<>();
+        List<String> r = new ArrayList<>();
+        List<String> t = new ArrayList<>();
+
+        String temp = "";
+        // On cherche ren0 ,ren1 ,etc ..
+        for (int i = 0; i < productions.size(); i++) {
+            for (int j = 0; j < nonTerminaux.size(); j++) {
+                if (productions.get(nonTerminaux.get(i) + " ").contains(
+                        nonTerminaux.get(j))) {
+                    if (!r.contains(nonTerminaux.get(i))) {
+                        r.add(nonTerminaux.get(i));
+                    }
+                    if (!r.contains(nonTerminaux.get(j))) {
+                        r.add(nonTerminaux.get(j));
+                    }
+                    t = copieList(r);
+                    ren.remove(nonTerminaux.get(i) + " ");
+                    ren.put(nonTerminaux.get(i) + " ", t);
+                } else {
+                    if (!r.contains(nonTerminaux.get(i))) {
+                        r.add(nonTerminaux.get(i));
+                    }
+                    t = copieList(r);
+                    ren.remove(nonTerminaux.get(i) + " ");
+                    ren.put(nonTerminaux.get(i) + " ", t);
+                }
+            }
+
+            r.clear();
+        }
+        System.out.println(ren);
+        for (int i = 0; i < ren.size(); i++) {
+            System.out.println("a = " + ren.get(nonTerminaux.get(i) + " "));
+            System.out.println("a = "
+                    + ren.get(nonTerminaux.get(i) + " ").size());
+
+            for (int j = 0; j < ren.get(nonTerminaux.get(i) + " ").size(); j++) {
+
+                System.out.println(ren.get(nonTerminaux.get(i) + " "));
+                System.out.println(ren.get(nonTerminaux.get(j) + " "));
+                if (!ren.get(nonTerminaux.get(i) + " ").equals(
+                        ren.get(nonTerminaux.get(j) + " "))) {
+                    System.out.println("hola");
+                    t = ren.get(nonTerminaux.get(i) + " ");
+                    System.out.println("t = " + t);
+                    for (int j2 = 0; j2 < t.size(); j2++) {
+                        if (!t.contains(ren.get(nonTerminaux.get(i) + " ").get(
+                                j2))) {
+                            t.add(ren.get(nonTerminaux.get(i) + " ").get(j2));
+                        }
+                    }
+                    System.out.println("t = " + t);
+
+                }
+                // ren.remove(nonTerminaux.get(i) + " ");
+                // ren.put(nonTerminaux.get(i) + " ", t);
+
+            }
+
+        }
+        System.out.println(ren);
+
     }
 
     /**
@@ -509,8 +577,8 @@ public class Grammaire {
         Lecture lp = new Lecture();
         lp.lecture();
         Grammaire g = lp.getGrammaire();
-      //  g.suppressionEpsilons();
-        // g.reemplaceEpsilons(s, s2);
-        g.suppressionImproductifs();
+        System.out.println(g.productions);
+        // System.out.println(g.nonTerminaux);
+        g.suppressionRenomage();
     }
 }
