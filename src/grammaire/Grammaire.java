@@ -573,6 +573,16 @@ public class Grammaire {
         return s;
     }
 
+    /**
+     * Nettoie la grammaire.
+     */
+    public void nettoyer() {
+        suppressionImproductifs();
+        suppressionInaccesible();
+        suppressionEpsilons();
+        //suppressionRenomage();
+    }
+
     public static void main(String[] args) throws IOException {
         Lecture lp = new Lecture();
         lp.lecture();
