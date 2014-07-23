@@ -48,7 +48,8 @@ public class Grammaire {
         List<String> temp = new ArrayList<>();
         String prod;
         int t = 1;
-        // On regarde les non terminaux qu'il y a dans les productions de l'axiome
+        // On regarde les non terminaux qu'il y a dans les productions de
+        // l'axiome
         if (nonTerminaux.contains(axiome)) {
             temp.add(axiome);
             prod = productions.get(axiome + " ");
@@ -59,24 +60,26 @@ public class Grammaire {
                     temp.add(nonTerminaux.get(i));
                 }
             }
-        } else {
-            temp.add("L'axiome n'existe pas.");
-        }
-        // On regarde les
-        while (t != nonTerminaux.size() - 1) {
-            if (temp.size() > t) {
-                prod = productions.get(temp.get(t) + " ");
-                if (prod != null) {
-                    for (int k = 0; k < nonTerminaux.size(); k++) {
-                        if (prod.contains(nonTerminaux.get(k))
-                                && !temp.contains(nonTerminaux.get(k))) {
-                            temp.add(nonTerminaux.get(k));
+
+            // On regarde les
+            while (t != nonTerminaux.size() - 1) {
+                if (temp.size() > t) {
+                    prod = productions.get(temp.get(t) + " ");
+                    if (prod != null) {
+                        for (int k = 0; k < nonTerminaux.size(); k++) {
+                            if (prod.contains(nonTerminaux.get(k))
+                                    && !temp.contains(nonTerminaux.get(k))) {
+                                temp.add(nonTerminaux.get(k));
+                            }
                         }
                     }
                 }
+                t++;
             }
-            t++;
+        } else {
+            temp.add("L'axiome n'existe pas.");
         }
+
         nonTerminaux = temp;
     }
 
@@ -174,6 +177,7 @@ public class Grammaire {
                 p.add(nonTerminaux.get(g));
             }
         }
+        System.out.println("p = "+p);
         // On regarde tous les productions avec Epsilons
         // et on le garde dans prodEpsilon
         for (int i = 0; i < p.size(); i++) {
@@ -184,6 +188,7 @@ public class Grammaire {
         // On regarde les non terminaux pour savoir
         // ce que vont vers les epsilon
         cheminEpsilon = copieList(prodEpsilon);
+        System.out.println("prod e ))= " +prodEpsilon);
         for (int i = 0; i < p.size(); i++) {
             for (int j = 0; j < prodEpsilon.size(); j++) {
                 if (productions.get(p.get(i) + " ")
@@ -193,6 +198,7 @@ public class Grammaire {
                 }
             }
         }
+        System.out.println("Chemin e = "+cheminEpsilon);
         // On va remplacer les epsilons ...
         for (int i = 0; i < prodEpsilon.size(); i++) {
 
@@ -216,7 +222,8 @@ public class Grammaire {
             String s = "";
             String f = "";
             for (int i = 0; i < productions.size(); i++) {
-
+                //pas bonne
+                System.out.println("chemin = "+cheminEpsilon);
                 f = productions.get(cheminEpsilon.get(i) + " ");
                 for (int j = 0; j < cheminEpsilon.size(); j++) {
                     // On reemplace les epsilons pour les productions
@@ -243,6 +250,7 @@ public class Grammaire {
         Map<String, List<String>> ren = new HashMap<>();
         List<String> r = new ArrayList<>();
         List<String> t = new ArrayList<>();
+        List<String> te = new ArrayList<>();
 
         String temp = "";
         // On cherche ren0 ,ren1 ,etc ..
@@ -271,35 +279,16 @@ public class Grammaire {
 
             r.clear();
         }
-        System.out.println(ren);
+        // On cherche les Rem 2 ,3 ...
         for (int i = 0; i < ren.size(); i++) {
-            System.out.println("a = " + ren.get(nonTerminaux.get(i) + " "));
-            System.out.println("a = "
-                    + ren.get(nonTerminaux.get(i) + " ").size());
-
-            for (int j = 0; j < ren.get(nonTerminaux.get(i) + " ").size(); j++) {
-
-                System.out.println(ren.get(nonTerminaux.get(i) + " "));
-                System.out.println(ren.get(nonTerminaux.get(j) + " "));
-                if (!ren.get(nonTerminaux.get(i) + " ").equals(
-                        ren.get(nonTerminaux.get(j) + " "))) {
-                    System.out.println("hola");
-                    t = ren.get(nonTerminaux.get(i) + " ");
-                    System.out.println("t = " + t);
-                    for (int j2 = 0; j2 < t.size(); j2++) {
-                        if (!t.contains(ren.get(nonTerminaux.get(i) + " ").get(
-                                j2))) {
-                            t.add(ren.get(nonTerminaux.get(i) + " ").get(j2));
-                        }
-                    }
-                    System.out.println("t = " + t);
-
+            t = ren.get(nonTerminaux.get(i) + " ");
+            for (int j = 0; j < t.size(); j++) {
+                te = ren.get(t.get(j) + " ");
+                if (!t.containsAll(te)) {
+                    t.addAll(te);
+                    suppressionDupliProd(t);
                 }
-                // ren.remove(nonTerminaux.get(i) + " ");
-                // ren.put(nonTerminaux.get(i) + " ", t);
-
             }
-
         }
         System.out.println(ren);
 
@@ -518,6 +507,7 @@ public class Grammaire {
         return terminaux;
     }
 
+    
     public Map<String, String> getProcutions() {
         return productions;
     }
@@ -577,8 +567,13 @@ public class Grammaire {
         Lecture lp = new Lecture();
         lp.lecture();
         Grammaire g = lp.getGrammaire();
-        System.out.println(g.productions);
+        //System.out.println(g.nonTerminaux);
         // System.out.println(g.nonTerminaux);
-        g.suppressionRenomage();
+        // g.suppressionRenomage();
+      // g.suppressionInaccesible();
+       // g.suppressionImproductifs();
+        g.suppressionEpsilons();
+        //System.out.println(g.nonTerminaux);
+        System.out.println(g.productions);
     }
 }
