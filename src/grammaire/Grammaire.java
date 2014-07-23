@@ -4,8 +4,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.omg.PortableServer.POA;
 
@@ -177,7 +179,7 @@ public class Grammaire {
                 p.add(nonTerminaux.get(g));
             }
         }
-        System.out.println("p = "+p);
+        System.out.println("p = " + p);
         // On regarde tous les productions avec Epsilons
         // et on le garde dans prodEpsilon
         for (int i = 0; i < p.size(); i++) {
@@ -188,7 +190,7 @@ public class Grammaire {
         // On regarde les non terminaux pour savoir
         // ce que vont vers les epsilon
         cheminEpsilon = copieList(prodEpsilon);
-        System.out.println("prod e ))= " +prodEpsilon);
+        System.out.println("prod e ))= " + prodEpsilon);
         for (int i = 0; i < p.size(); i++) {
             for (int j = 0; j < prodEpsilon.size(); j++) {
                 if (productions.get(p.get(i) + " ")
@@ -198,7 +200,7 @@ public class Grammaire {
                 }
             }
         }
-        System.out.println("Chemin e = "+cheminEpsilon);
+        System.out.println("Chemin e = " + cheminEpsilon);
         // On va remplacer les epsilons ...
         for (int i = 0; i < prodEpsilon.size(); i++) {
 
@@ -222,8 +224,8 @@ public class Grammaire {
             String s = "";
             String f = "";
             for (int i = 0; i < productions.size(); i++) {
-                //pas bonne
-                System.out.println("chemin = "+cheminEpsilon);
+                // pas bonne
+                System.out.println("chemin = " + cheminEpsilon);
                 f = productions.get(cheminEpsilon.get(i) + " ");
                 for (int j = 0; j < cheminEpsilon.size(); j++) {
                     // On reemplace les epsilons pour les productions
@@ -507,7 +509,6 @@ public class Grammaire {
         return terminaux;
     }
 
-    
     public Map<String, String> getProcutions() {
         return productions;
     }
@@ -563,17 +564,163 @@ public class Grammaire {
         return s;
     }
 
+    /**
+     * @param mot
+     *            , le mot qu'on teste pour savoir s'il appartient à la
+     *            grammaire
+     * @return si c'est bon on peut faire le mot, ou pas.
+     */
+    public boolean algorithmeCYK(String mot) {
+
+        System.out
+                .println("=============================================CYK sur "
+                        + mot);
+        int tailleMot = mot.length();
+        PyramideCYK pyramide = new PyramideCYK(tailleMot);
+        // Liste temporaire utilisée pour clarifier le code.
+        ArrayList<String> tmp = null;
+
+        // Parcours de la première ligne de la pyramide
+        for (int i = 0; i < tailleMot; i++) {
+            // On regarde si on peut obtenir la lettre avec la grammaire == un
+            // terminal égal à la lettre
+            tmp = getProductionsQuiContiennentLaVariable(mot
+                    .substring(i, i + 1));
+
+            pyramide.addlistProductions(tmp, 0, i);
+            // Vidage de tmp
+            tmp = null;
+        }
+
+        // Parcours des AUTRES lignes de la pyramide, et completion de la
+        // pyramide au fur et à mesure
+        for (int numeroLigne = 1; numeroLigne < tailleMot; numeroLigne++) {
+
+            System.out
+                    .println("========================CHANGEMENT DE LIGNE - LIGNE "
+                            + numeroLigne);
+            // Parcours des cases de cette ligne
+            for (int numeroCase = 0; numeroCase < tailleMot - numeroLigne; numeroCase++) {
+                System.out
+                        .println("========================CHANGEMENT DE Case - Case "
+                                + numeroCase);
+                // System.out.println("Numero Ligne" + numeroLigne +
+                // "Numero case : " + numeroCase );
+
+                // à chaque fois, numeroLigne cas possibles de combinaisons de
+                // cases. (sachant qu'oncommence à 0)
+                for (int i = 0; i < numeroLigne; i++) {
+                    System.out.println("Case " + (0 + i) + ","
+                            + (0 + numeroCase) + " et " + (numeroLigne - 1 - i)
+                            + "," + (tailleMot - numeroLigne));
+                    List<String> gauche = pyramide.getListProductions(0 + i,
+                            0 + numeroCase);
+                    List<String> droite = pyramide.getListProductions(
+                            numeroLigne - 1 - i, numeroCase + 1 + i);
+
+                    // ici ça pue
+
+                    // On regarde s'il existe une produciton qui contient la
+                    // combinaison de deux productions des deux cases en dessous
+                    for (int k = 0; k < gauche.size(); k++) {
+                        for (int l = 0; l < droite.size(); l++) {
+
+                            // Recherche des productions qui contiennent le non
+                            // terminal
+                            tmp = getProductionsQuiContiennentLaVariable(""
+                                    .concat(gauche.get(k))
+                                    .concat(droite.get(l)));
+                            // Ajout des productions trouvées à la case de la
+                            // pyramide
+                            pyramide.addlistProductions(tmp, numeroLigne,
+                                    numeroCase);
+
+                            tmp = null;
+                        }
+                    }
+
+                }
+
+            }
+        }
+
+        System.out.println(pyramide);
+        System.out.println("AXIOME : " + axiome);
+        System.out.print("Liste des productions de la dernière case : ");
+
+        for (int i = 0; i < pyramide.getListProductions(tailleMot - 1, 0)
+                .size(); i++) {
+            System.out.println(pyramide.getListProductions(tailleMot - 1, 0)
+                    .get(i));
+
+            System.out.println("valeur comparee : "
+                    + pyramide.getListProductions(tailleMot - 1, 0).get(i));
+            if (pyramide.getListProductions(tailleMot - 1, 0).get(i)
+                    .contains(axiome)) {
+                return true;
+            }
+
+        }
+        return false;
+    }
+
+    /**
+     * @return un tableau contenant le nom des productions qui contiennent le
+     *         terminal en particulier
+     */
+    private ArrayList<String> getProductionsQuiContiennentLaVariable(
+            String variable) {
+        ArrayList<String> retour = new ArrayList<>();
+        System.out.println("parcours des productions qui contiennent "
+                + variable);
+
+        Set<String> keys = productions.keySet();
+        Iterator<String> it = keys.iterator();
+        String key;
+
+        while (it.hasNext()) {
+            key = it.next();
+            System.out.print(key + "-");
+            // Parcours des productions
+            for (String prod : produtions(productions.get(key))) {
+
+                if (prod.contains(variable) && !retour.contains(variable)) {
+                    System.out.print("->BONNE!");
+                    String result = key.replaceAll(" ", "");
+                    retour.add(result);
+
+                    break; // Sortie forcée du for
+                }
+            }
+            System.out.println();
+        }
+
+        System.out.print("Liste des productions bonnes :");
+        for (int i = 0; i < retour.size(); i++) {
+            System.out.print(retour.get(i) + " ");
+        }
+        System.out.println("\nfin de parcours");
+        return retour;
+
+    }
+
     public static void main(String[] args) throws IOException {
         Lecture lp = new Lecture();
         lp.lecture();
         Grammaire g = lp.getGrammaire();
-        //System.out.println(g.nonTerminaux);
+        // System.out.println(g.nonTerminaux);
         // System.out.println(g.nonTerminaux);
         // g.suppressionRenomage();
-      // g.suppressionInaccesible();
-       // g.suppressionImproductifs();
+        // g.suppressionInaccesible();
+        // g.suppressionImproductifs();
         g.suppressionEpsilons();
-        //System.out.println(g.nonTerminaux);
+        // System.out.println(g.nonTerminaux);
         System.out.println(g.productions);
+        System.out.println(g.algorithmeCYK("aabbab"));
+
+        // System.out.println(g.productions);
+        // System.out.println(g.nonTerminaux);
+        // g.suppressionRenomage();
+
     }
 }
