@@ -11,6 +11,7 @@ import java.util.Set;
 
 import org.omg.PortableServer.POA;
 
+import outils.Ecriture;
 import outils.Lecture;
 
 import com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel;
@@ -701,11 +702,191 @@ public class Grammaire {
         }
         System.out.println("\nfin de parcours");
         return retour;
+    }
 
+    /*
+     * Ajoute une règle.
+     *
+     * @param nonTerminal le symbole non-terminal de la nouvelle règle
+     * @param production la ou les productions associées
+     */
+    private void ajouterRegle(String nonTerminal, String production) {
+        if(productions.get(nonTerminal) != null) {
+            ajouteProd(nonTerminal, production);
+        }
+        else {
+            productions.put(nonTerminal, production);
+            nonTerminaux.add(nonTerminal);
+        }
+    }
+
+    /**
+     * Nettoie la grammaire.
+     */
+    public void nettoyer() {
+        suppressionImproductifs();
+        suppressionInaccesible();
+        suppressionEpsilons();
+        // TODO Fernando
+        //suppressionRenomage();
+    }
+
+    /**
+     * Met la grammaire sous forme normale de Chomsky.
+     */
+    public void Chomsky() {
+        nettoyer();
+        traiterTerminauxChomsky();
+        traiterReglesChomsky();
+    }
+
+    /**
+     * Crée une règle par terminal et les remplace dans les autres règles.
+     */
+    private void traiterTerminauxChomsky() {
+        Set<String> keys = productions.keySet();
+        Iterator<String> it = keys.iterator();
+        String key, prod;
+
+        // Remplace dans les règles déjà existantes
+        while(it.hasNext()) {
+            key = it.next();
+            prod = productions.get(key);
+            for (String term: terminaux) {
+                prod = prod.replace(term, "C" + term);
+            }
+            productions.put(key, prod);
+        }
+
+        // Crée les règles
+        for (String term: terminaux) {
+            ajouterRegle("C" + term + " "," > " + term);
+        }
+    }
+
+    /**
+     * Traite les règles pour les mettre sous FNC.
+     */
+    private void traiterReglesChomsky() {
+        Map<String, String> temp = mapCopy(productions);
+        Set<String> keys = temp.keySet();
+        Iterator<String> it = keys.iterator();
+        String key;
+        char nonTerminal = 'V';
+
+        while(it.hasNext()) {
+            key = it.next();
+            for (String prod: produtions(productions.get(key))) {
+                if(charOccur(prod, ' ') > 2) {
+                    traiterRegleChomsky(prod, key, "" + nonTerminal);
+                    nonTerminal++;
+                }
+            }
+        }
+    }
+
+    /**
+     * Traite récursivement une règle pour la mettre sous FNC.
+     *
+     * @param prod la production à traiter
+     * @param nonTerminal1 le symbole non-terminal correspondant à la règle
+     * @param nonTerminal2 le symbole non-terminal des règles engendrées par le traitement
+     */
+    private void traiterRegleChomsky(String prod, String nonTerminal1, String nonTerminal2) {
+        String newProd, oldProd;
+
+        if(charOccur(prod, ' ') > 2) {
+            int i = prod.indexOf(' ');
+
+            prod = prod.substring(0, prod.length() - 1);
+            oldProd = prod.substring(0, i);
+            oldProd += " " + nonTerminal2 + "1 ";
+            newProd = prod.substring(i + 1, prod.length());
+            productions.put(nonTerminal1, productions.get(nonTerminal1).replaceAll(prod, oldProd));
+            productions.put(nonTerminal1, productions.get(nonTerminal1).replaceAll(prod + "\\s\\x7C", oldProd + "|"));
+            productions.put(nonTerminal1, productions.get(nonTerminal1).replaceAll("\\x7C\\s" + prod + "\\s\\x7C", "| " + oldProd + "|"));
+            productions.put(nonTerminal1, productions.get(nonTerminal1).replaceAll("\\x7C\\s" + prod + "\\z", "| " + oldProd));
+            ajouterRegle(nonTerminal2 + "1 ", " > " + newProd);
+            traiterRegleChomskyRec(newProd, nonTerminal2 + "1", nonTerminal2, 2);
+        }
+    }
+
+    // récursion de traiterRegleChomsky
+    private void traiterRegleChomskyRec(String prod, String nonTerminal1, String nonTerminal2, int cnt) {
+        String newProd, oldProd;
+
+        if(charOccur(prod, ' ') > 2) {
+            int i = prod.indexOf(' ');
+
+            prod = prod.substring(0, prod.length() - 1);
+            oldProd = prod.substring(0, i);
+            oldProd += " " + nonTerminal2 + cnt + " ";
+            newProd = prod.substring(i + 1, prod.length());
+            productions.put(nonTerminal1, productions.get(nonTerminal1).replaceAll(prod, oldProd));
+            productions.put(nonTerminal1, productions.get(nonTerminal1).replaceAll(prod + "\\s\\x7C", oldProd + "|"));
+            productions.put(nonTerminal1, productions.get(nonTerminal1).replaceAll("\\x7C\\s" + prod + "\\s\\x7C", "| " + oldProd + "|"));
+            productions.put(nonTerminal1, productions.get(nonTerminal1).replaceAll("\\x7C\\s" + prod + "\\z", "| " + oldProd));
+            ajouterRegle(nonTerminal2 + cnt + " ", " > " + newProd);
+            traiterRegleChomskyRec(newProd, nonTerminal2 + cnt, nonTerminal2, cnt++);
+        }
+    }
+
+    /**
+     * Calcule le nombre d'occurences d'un caractère dans une chaîne.
+     *
+     * @param str la chaîne dans laquelle chercher le caractère
+     * @param c le caractère à rechercher
+     * @return le nombre d'occurences
+     */
+    private static int charOccur(String str, char c) {
+        int i = -1, cnt = 0;
+
+        while((i = str.indexOf(c, i + 1)) != -1) {
+            cnt++;
+        }
+        return cnt;
+    }
+
+    /**
+     * Calcule l'index d'un n-ième caractère répété dans une chaîne.
+     *
+     * @param str la chaîne dans laquelle chercher le caractère
+     * @param c le caractère à rechercher
+     * @param n la n-ième appartition du caractère à rechercher
+     * @return l'index
+     */
+    private static int nCharIndex(String str, char c, int n) {
+        int i = -1, cnt = 0;
+
+        while((i = str.indexOf(c, i + 1)) != -1 && cnt < n) {
+            cnt++;
+        }
+        return i;
+    }
+
+    /**
+     * Copie une HashMap<String, String>.
+     *
+     * @param src la map à copier
+     * @return la copie
+     */
+    private static HashMap<String, String> mapCopy(Map<String, String> src) {
+        HashMap<String, String> copy = new HashMap<String, String>();
+        Set<String> keys = src.keySet();
+        Iterator<String> it = keys.iterator();
+        String key;
+
+        while(it.hasNext()) {
+            key = it.next();
+            copy.put(key, src.get(key));
+        }
+
+        return copy;
     }
 
     public static void main(String[] args) throws IOException {
         Lecture lp = new Lecture();
+        //Ecriture ec = new Ecriture();
         lp.lecture();
         Grammaire g = lp.getGrammaire();
         // System.out.println(g.nonTerminaux);
@@ -722,5 +903,11 @@ public class Grammaire {
         // System.out.println(g.nonTerminaux);
         // g.suppressionRenomage();
 
+        /*
+        g.traiterTerminauxChomsky();
+        System.out.println(g.productions);
+        g.traiterReglesChomsky();
+        System.out.println(g.productions);
+        */
     }
 }
