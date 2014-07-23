@@ -664,7 +664,6 @@ public class Grammaire {
         if(charOccur(prod, ' ') > 2) {
             int i = prod.indexOf(' ');
 
-            // TODO ne crée que des 1
             prod = prod.substring(0, prod.length() - 1);
             oldProd = prod.substring(0, i);
             oldProd += " " + nonTerminal2 + "1 ";
@@ -674,7 +673,27 @@ public class Grammaire {
             productions.put(nonTerminal1, productions.get(nonTerminal1).replaceAll("\\x7C\\s" + prod + "\\s\\x7C", "| " + oldProd + "|"));
             productions.put(nonTerminal1, productions.get(nonTerminal1).replaceAll("\\x7C\\s" + prod + "\\z", "| " + oldProd));
             ajouterRegle(nonTerminal2 + "1 ", " > " + newProd);
-            traiterRegleChomsky(newProd, nonTerminal2 + "1", nonTerminal2);
+            traiterRegleChomskyRec(newProd, nonTerminal2 + "1", nonTerminal2, 2);
+        }
+    }
+
+    // récursion de traiterRegleChomsky
+    private void traiterRegleChomskyRec(String prod, String nonTerminal1, String nonTerminal2, int cnt) {
+        String newProd, oldProd;
+
+        if(charOccur(prod, ' ') > 2) {
+            int i = prod.indexOf(' ');
+
+            prod = prod.substring(0, prod.length() - 1);
+            oldProd = prod.substring(0, i);
+            oldProd += " " + nonTerminal2 + cnt + " ";
+            newProd = prod.substring(i + 1, prod.length());
+            productions.put(nonTerminal1, productions.get(nonTerminal1).replaceAll(prod, oldProd));
+            productions.put(nonTerminal1, productions.get(nonTerminal1).replaceAll(prod + "\\s\\x7C", oldProd + "|"));
+            productions.put(nonTerminal1, productions.get(nonTerminal1).replaceAll("\\x7C\\s" + prod + "\\s\\x7C", "| " + oldProd + "|"));
+            productions.put(nonTerminal1, productions.get(nonTerminal1).replaceAll("\\x7C\\s" + prod + "\\z", "| " + oldProd));
+            ajouterRegle(nonTerminal2 + cnt + " ", " > " + newProd);
+            traiterRegleChomskyRec(newProd, nonTerminal2 + cnt, nonTerminal2, cnt ++);
         }
     }
 
