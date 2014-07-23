@@ -638,11 +638,15 @@ public class Grammaire {
         Set<String> keys = temp.keySet();
         Iterator<String> it = keys.iterator();
         String key;
+        char nonTerminal = 'V';
 
         while(it.hasNext()) {
             key = it.next();
             for (String prod: produtions(productions.get(key))) {
-                traiterRegleChomsky(prod, key);
+                if(charOccur(prod, ' ') > 2) {
+                    traiterRegleChomsky(prod, key, "" + nonTerminal);
+                    nonTerminal++;
+                }
             }
         }
     }
@@ -651,21 +655,26 @@ public class Grammaire {
      * Traite récursivement une règle pour la mettre sous FNC.
      *
      * @param prod la production à traiter
-     * @param nonTerminal le symbole non-terminal correspondant
+     * @param nonTerminal1 le symbole non-terminal correspondant à la règle
+     * @param nonTerminal2 le symbole non-terminal des règles engendrées par le traitement
      */
-    private void traiterRegleChomsky(String prod, String nonTerminal) {
+    private void traiterRegleChomsky(String prod, String nonTerminal1, String nonTerminal2) {
         String newProd, oldProd;
 
         if(charOccur(prod, ' ') > 2) {
             int i = prod.indexOf(' ');
 
-            // TODO ne crée que des X1
+            // TODO ne crée que des 1
+            prod = prod.substring(0, prod.length() - 1);
             oldProd = prod.substring(0, i);
-            oldProd += "X1 ";
+            oldProd += " " + nonTerminal2 + "1 ";
             newProd = prod.substring(i + 1, prod.length());
-            productions.put(nonTerminal, oldProd);
-            ajouterRegle("X1 ", " > " + newProd);
-            traiterRegleChomsky(newProd, "X1");
+            productions.put(nonTerminal1, productions.get(nonTerminal1).replaceAll(prod, oldProd));
+            productions.put(nonTerminal1, productions.get(nonTerminal1).replaceAll(prod + "\\s\\x7C", oldProd + "|"));
+            productions.put(nonTerminal1, productions.get(nonTerminal1).replaceAll("\\x7C\\s" + prod + "\\s\\x7C", "| " + oldProd + "|"));
+            productions.put(nonTerminal1, productions.get(nonTerminal1).replaceAll("\\x7C\\s" + prod + "\\z", "| " + oldProd));
+            ajouterRegle(nonTerminal2 + "1 ", " > " + newProd);
+            traiterRegleChomsky(newProd, nonTerminal2 + "1", nonTerminal2);
         }
     }
 
@@ -729,6 +738,7 @@ public class Grammaire {
         Grammaire g = lp.getGrammaire();
         System.out.println(g.productions);
         g.traiterTerminauxChomsky();
+        System.out.println(g.productions);
         g.traiterReglesChomsky();
         System.out.println(g.productions);
         //ec.Ecrir(g);
