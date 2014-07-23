@@ -641,16 +641,28 @@ public class Grammaire {
         while(it.hasNext()) {
             key = it.next();
             for (String prod: produtions(productions.get(key))) {
-                traiterRegleChomsky(prod);
+                traiterRegleChomsky(prod, key);
             }
         }
     }
 
-    private void traiterRegleChomsky(String prod) {
+    /**
+     * Traite récursivement une règle pour la mettre sous FNC.
+     *
+     * @param prod la production à traiter
+     * @param nonTerminal le symbole non-terminal correspondant
+     */
+    private void traiterRegleChomsky(String prod, String nonTerminal) {
+        String newProd, oldProd;
+
         if(charOccur(prod, ' ') > 2) {
-            // TODO découper prod
-            // TODO ajouter nouvelle règle
-            // TODO traiter nouvelle règle
+            int i = nCharIndex(prod, ' ', 2);
+            oldProd = prod.substring(0, i);
+            newProd = prod.substring(i + 1, prod.length());
+            productions.put(nonTerminal, oldProd);
+            // TODO ne crée que des X1
+            ajouterRegle("X1 ", " > " + newProd);
+            traiterRegleChomsky(newProd, "X1");
         }
     }
 
@@ -668,6 +680,19 @@ public class Grammaire {
             cnt++;
         }
         return cnt;
+    }
+
+    /**
+     * Calcule l'index d'un n-ième caractère répété dans une chaîne.
+     *
+     * @param src la chaîne dans laquelle chercher le caractère
+     * @param c le caractère à rechercher
+     * @param n la n-ième appartition du caractère à rechercher
+     * @return l'index
+     */
+    private static int nCharIndex(String src, char c, int n) {
+        // TODO
+        return 0;
     }
 
     public static void main(String[] args) throws IOException {
