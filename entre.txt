@@ -1,4 +1,6 @@
-S > AB | BB
-A > CC | AB | a
-B > BB | CA | b
-C > BA | AA | b
+S > a b | B B a | C 
+A > B
+B > B b | C
+C > E a | ε 
+
+

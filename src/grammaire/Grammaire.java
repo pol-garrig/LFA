@@ -16,6 +16,7 @@ import outils.Lecture;
 import com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel;
 import com.sun.org.apache.bcel.internal.generic.L2D;
 import com.sun.org.apache.xpath.internal.axes.ChildIterator;
+import com.sun.xml.internal.ws.wsdl.writer.document.Port;
 
 /**
  * Created by Fernando on 03/07/2014 for the project LFA.
@@ -294,6 +295,29 @@ public class Grammaire {
         }
         System.out.println(ren);
 
+    }
+
+    /**
+     * 
+     * @param C
+     */
+    public List<String> chemin(String c) {
+        Set<String> keys = productions.keySet();
+        Iterator<String> it = keys.iterator();
+        String key;
+        List<String> temp = new ArrayList<>();
+        List<String> t = new ArrayList<>();
+
+        String prod;
+        while (it.hasNext()) {
+            key = it.next();
+            prod = productions.get(key);
+            if (prod.contains(c) && !temp.contains(key)) {
+                temp.add(key.substring(0, key.length() - 1));
+            }
+        }
+
+        return temp;
     }
 
     /**
@@ -713,10 +737,10 @@ public class Grammaire {
         // g.suppressionRenomage();
         // g.suppressionInaccesible();
         // g.suppressionImproductifs();
-        g.suppressionEpsilons();
+        // g.suppressionEpsilons();
         // System.out.println(g.nonTerminaux);
-        System.out.println(g.productions);
-        System.out.println(g.algorithmeCYK("aabbab"));
+        System.out.println(g.chemin("C"));
+        // System.out.println(g.algorithmeCYK("aa"));
 
         // System.out.println(g.productions);
         // System.out.println(g.nonTerminaux);
