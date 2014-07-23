@@ -661,9 +661,13 @@ public class Grammaire {
      * @param c le caractère à rechercher
      * @return le nombre d'occurences
      */
-    private int charOccur(String str, char c) {
-        // TODO
-        return 0;
+    private static int charOccur(String str, char c) {
+        int i = -1, cnt = 0;
+
+        while((i = str.indexOf(c, i + 1)) != -1) {
+            cnt++;
+        }
+        return cnt;
     }
 
     public static void main(String[] args) throws IOException {
