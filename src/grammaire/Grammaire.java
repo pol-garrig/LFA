@@ -5,6 +5,7 @@ import java.util.*;
 
 import org.omg.PortableServer.POA;
 
+import outils.Ecriture;
 import outils.Lecture;
 
 import com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel;
@@ -581,6 +582,7 @@ public class Grammaire {
         }
         else {
             productions.put(nonTerminal, production);
+            nonTerminaux.add(nonTerminal);
         }
     }
 
@@ -610,24 +612,22 @@ public class Grammaire {
     private void traiterTerminauxChomsky() {
         Set<String> keys = productions.keySet();
         Iterator<String> it = keys.iterator();
-        String key = it.next();
+        String key, prod;
+
+        // Remplace dans les règles déjà existantes
+        while(it.hasNext()) {
+            key = it.next();
+            prod = productions.get(key);
+            for (String term: terminaux) {
+                prod = prod.replace(term, "C" + term);
+            }
+            productions.put(key, prod);
+        }
 
         // Crée les règles
         for (String term: terminaux) {
-            ajouterRegle("C" + term, term);
+            ajouterRegle("C" + term + " "," > " + term);
         }
-
-        /*
-        // Remplace dans les règles déjà existantes
-        while(it.hasNext()) {
-            for (String prod: produtions(productions.get(key))) {
-                for (String term: terminaux) {
-                    prod.replace(term, "C" + term);
-                }
-            }
-            key = it.next();
-        }
-        */
     }
 
     /**
@@ -639,11 +639,13 @@ public class Grammaire {
 
     public static void main(String[] args) throws IOException {
         Lecture lp = new Lecture();
+        //Ecriture ec = new Ecriture();
         lp.lecture();
         Grammaire g = lp.getGrammaire();
         System.out.println(g.productions);
         g.traiterTerminauxChomsky();
         System.out.println(g.productions);
+        //ec.Ecrir(g);
         // System.out.println(g.nonTerminaux);
         //g.suppressionRenomage();
     }
