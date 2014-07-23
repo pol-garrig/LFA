@@ -634,7 +634,8 @@ public class Grammaire {
      * Traite les règles pour les mettre sous FNC.
      */
     private void traiterReglesChomsky() {
-        Set<String> keys = productions.keySet();
+        Map<String, String> temp = mapCopy(productions);
+        Set<String> keys = temp.keySet();
         Iterator<String> it = keys.iterator();
         String key;
 
@@ -656,11 +657,13 @@ public class Grammaire {
         String newProd, oldProd;
 
         if(charOccur(prod, ' ') > 2) {
-            int i = nCharIndex(prod, ' ', 2);
+            int i = prod.indexOf(' ');
+
+            // TODO ne crée que des X1
             oldProd = prod.substring(0, i);
+            oldProd += "X1 ";
             newProd = prod.substring(i + 1, prod.length());
             productions.put(nonTerminal, oldProd);
-            // TODO ne crée que des X1
             ajouterRegle("X1 ", " > " + newProd);
             traiterRegleChomsky(newProd, "X1");
         }
@@ -697,6 +700,26 @@ public class Grammaire {
             cnt++;
         }
         return i;
+    }
+
+    /**
+     * Copie une HashMap<String, String>.
+     *
+     * @param src la map à copier
+     * @return la copie
+     */
+    private static HashMap<String, String> mapCopy(Map<String, String> src) {
+        HashMap<String, String> copy = new HashMap<String, String>();
+        Set<String> keys = src.keySet();
+        Iterator<String> it = keys.iterator();
+        String key;
+
+        while(it.hasNext()) {
+            key = it.next();
+            copy.put(key, src.get(key));
+        }
+
+        return copy;
     }
 
     public static void main(String[] args) throws IOException {
