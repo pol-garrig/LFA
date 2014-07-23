@@ -685,14 +685,18 @@ public class Grammaire {
     /**
      * Calcule l'index d'un n-ième caractère répété dans une chaîne.
      *
-     * @param src la chaîne dans laquelle chercher le caractère
+     * @param str la chaîne dans laquelle chercher le caractère
      * @param c le caractère à rechercher
      * @param n la n-ième appartition du caractère à rechercher
      * @return l'index
      */
-    private static int nCharIndex(String src, char c, int n) {
-        // TODO
-        return 0;
+    private static int nCharIndex(String str, char c, int n) {
+        int i = -1, cnt = 0;
+
+        while((i = str.indexOf(c, i + 1)) != -1 && cnt < n) {
+            cnt++;
+        }
+        return i;
     }
 
     public static void main(String[] args) throws IOException {
