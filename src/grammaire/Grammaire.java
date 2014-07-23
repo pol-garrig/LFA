@@ -631,10 +631,39 @@ public class Grammaire {
     }
 
     /**
-     * Traite récursivement les règles pour les mettre sous FNC.
+     * Traite les règles pour les mettre sous FNC.
      */
     private void traiterReglesChomsky() {
+        Set<String> keys = productions.keySet();
+        Iterator<String> it = keys.iterator();
+        String key;
+
+        while(it.hasNext()) {
+            key = it.next();
+            for (String prod: produtions(productions.get(key))) {
+                traiterRegleChomsky(prod);
+            }
+        }
+    }
+
+    private void traiterRegleChomsky(String prod) {
+        if(charOccur(prod, ' ') > 2) {
+            // TODO découper prod
+            // TODO ajouter nouvelle règle
+            // TODO traiter nouvelle règle
+        }
+    }
+
+    /**
+     * Calcule le nombre d'occurences d'un caractère dans une chaîne.
+     *
+     * @param str la chaîne dans laquelle chercher le caractère
+     * @param c le caractère à rechercher
+     * @return le nombre d'occurences
+     */
+    private int charOccur(String str, char c) {
         // TODO
+        return 0;
     }
 
     public static void main(String[] args) throws IOException {
@@ -644,6 +673,7 @@ public class Grammaire {
         Grammaire g = lp.getGrammaire();
         System.out.println(g.productions);
         g.traiterTerminauxChomsky();
+        g.traiterReglesChomsky();
         System.out.println(g.productions);
         //ec.Ecrir(g);
         // System.out.println(g.nonTerminaux);
