@@ -772,13 +772,13 @@ public class Grammaire {
         Set<String> keys = temp.keySet();
         Iterator<String> it = keys.iterator();
         String key;
-        char nonTerminal = 'V';
+        char nonTerminal = 'M';
 
         while(it.hasNext()) {
             key = it.next();
             for (String prod: produtions(productions.get(key))) {
                 if(charOccur(prod, ' ') > 2) {
-                    traiterRegleChomsky(prod, key, "" + nonTerminal);
+                    traiterRegleChomsky(prod, key, "" + nonTerminal, 1);
                     nonTerminal++;
                 }
             }
@@ -791,28 +791,9 @@ public class Grammaire {
      * @param prod la production à traiter
      * @param nonTerminal1 le symbole non-terminal correspondant à la règle
      * @param nonTerminal2 le symbole non-terminal des règles engendrées par le traitement
+     * @param cnt numéro de la prochaine règle à créer
      */
-    private void traiterRegleChomsky(String prod, String nonTerminal1, String nonTerminal2) {
-        String newProd, oldProd;
-
-        if(charOccur(prod, ' ') > 2) {
-            int i = prod.indexOf(' ');
-
-            prod = prod.substring(0, prod.length() - 1);
-            oldProd = prod.substring(0, i);
-            oldProd += " " + nonTerminal2 + "1 ";
-            newProd = prod.substring(i + 1, prod.length());
-            productions.put(nonTerminal1, productions.get(nonTerminal1).replaceAll(prod, oldProd));
-            productions.put(nonTerminal1, productions.get(nonTerminal1).replaceAll(prod + "\\s\\x7C", oldProd + "|"));
-            productions.put(nonTerminal1, productions.get(nonTerminal1).replaceAll("\\x7C\\s" + prod + "\\s\\x7C", "| " + oldProd + "|"));
-            productions.put(nonTerminal1, productions.get(nonTerminal1).replaceAll("\\x7C\\s" + prod + "\\z", "| " + oldProd));
-            ajouterRegle(nonTerminal2 + "1 ", " > " + newProd);
-            traiterRegleChomskyRec(newProd, nonTerminal2 + "1 ", nonTerminal2, 2);
-        }
-    }
-
-    // récursion de traiterRegleChomsky
-    private void traiterRegleChomskyRec(String prod, String nonTerminal1, String nonTerminal2, int cnt) {
+    private void traiterRegleChomsky(String prod, String nonTerminal1, String nonTerminal2, int cnt) {
         String newProd, oldProd;
 
         if(charOccur(prod, ' ') > 2) {
@@ -827,7 +808,7 @@ public class Grammaire {
             productions.put(nonTerminal1, productions.get(nonTerminal1).replaceAll("\\x7C\\s" + prod + "\\s\\x7C", "| " + oldProd + "|"));
             productions.put(nonTerminal1, productions.get(nonTerminal1).replaceAll("\\x7C\\s" + prod + "\\z", "| " + oldProd));
             ajouterRegle(nonTerminal2 + cnt + " ", " > " + newProd);
-            traiterRegleChomskyRec(newProd, nonTerminal2 + cnt + " ", nonTerminal2, cnt++);
+            traiterRegleChomsky(newProd, nonTerminal2 + cnt + " ", nonTerminal2, cnt++);
         }
     }
 
