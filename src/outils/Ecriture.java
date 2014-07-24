@@ -15,7 +15,7 @@ public class Ecriture {
         grammaire = new Grammaire();
     }
 
-    public void Ecrir(Grammaire grammaire) {
+    public void ecrire(Grammaire grammaire) {
         File fichier = new File(sorti);
         try {
             // Creation du fichier
@@ -53,6 +53,6 @@ public class Ecriture {
         //la.getGrammaire().suppressionImproductifs();
         //la.getGrammaire().suppressionInaccesible();
        // la.getGrammaire().suppressionEpsilons();
-        e.Ecrir(la.getGrammaire());
+        e.ecrire(la.getGrammaire());
     }
 }

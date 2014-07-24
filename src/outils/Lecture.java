@@ -23,7 +23,11 @@ public class Lecture {
     }
 
     public void lecture() throws IOException {
-        String fichier = "entre.txt";
+        lecture("entre.txt");
+    }
+
+    public void lecture(String file) throws IOException {
+        String fichier = file;
         String key = "";
         String value = "";
         try {
