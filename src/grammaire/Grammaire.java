@@ -665,8 +665,6 @@ public class Grammaire {
         return false;
     }
 
-   
-
     /*
      * Ajoute une règle.
      *
@@ -758,15 +756,6 @@ public class Grammaire {
         }
     }
 
-    /**
-     * Traite récursivement une règle pour la mettre sous FNC.
-     *
-     * @param prod la production à traiter
-     * @param nonTerminal1 le symbole non-terminal correspondant à la règle
-     * @param nonTerminal2 le symbole non-terminal des règles engendrées par le traitement
-     * @param cnt numéro de la prochaine règle à créer
-     * @param cas numéro correspondant au cas relatif à la position de la production dans la règle
-     */
     private ArrayList<String> getProductionsQuiContiennentLaVariable(String variable)
     {
     	ArrayList<String> retour = new ArrayList<>();
@@ -808,10 +797,6 @@ public class Grammaire {
     	
     }
 
-    
-    
-    
-    
     public void formeNormaleGreibach()
     {
     	// Sans renommage
@@ -839,8 +824,6 @@ public class Grammaire {
 			// Puis ensuite on fait commencer toute règle par un terminal
     	
     }
-    
-    
     
     /**
      * Supprime toutes les recursivités gauches
@@ -1000,7 +983,16 @@ public class Grammaire {
 		System.out.println("production re-remplie : " + productions);
 		System.out.println("fini");
     }
-    
+
+    /**
+     * Traite récursivement une règle pour la mettre sous FNC.
+     *
+     * @param prod la production à traiter
+     * @param nonTerminal1 le symbole non-terminal correspondant à la règle
+     * @param nonTerminal2 le symbole non-terminal des règles engendrées par le traitement
+     * @param cnt numéro de la prochaine règle à créer
+     * @param cas numéro correspondant au cas relatif à la position de la production dans la règle
+     */
     private void traiterRegleChomsky(String prod, String nonTerminal1, String nonTerminal2, int cnt, int cas) {
         String newProd, oldProd;
 
@@ -1082,14 +1074,10 @@ public class Grammaire {
         //Ecriture ec = new Ecriture();
         lp.lecture();
         Grammaire g = lp.getGrammaire();
-        
-        
-        //System.out.println(g.algorithmeCYK("aabbab"));
 
+        //System.out.println(g.algorithmeCYK("aabbab"));
         
         g.supRecursiviteGauche();
-        
-        
         
         System.out.println(g.productions);
         // System.out.println(g.nonTerminaux);
