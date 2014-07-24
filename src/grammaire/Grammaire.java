@@ -797,32 +797,31 @@ public class Grammaire {
     	
     }
 
+    /**
+     * Mets la grammaire sous forme normale de Greibach.
+     */
     public void formeNormaleGreibach()
     {
-    	// Sans renommage
-    	// Sans E-production
-    	
-    	String[] tabProductions = null;
-    	
-    	
-		Set<String> keys = productions.keySet();
-		Iterator<String> it = keys.iterator();
-		String key;
+        nettoyer();
+        suppressionEpsilons();
+        // TODO Fernando décommenter suppressionRenomage()
+        //suppressionRenomage();
 
-		while (it.hasNext()) 
-		{
-			key = it.next();
-			
-			// Parcours des productions
-			for (String prod : produtions(productions.get(key))) 
-			{
-				// Pour chaque production, on regarde s'il y a des recursivités gauches et on les enlève
-				
-			}
-		}
-    	
-			// Puis ensuite on fait commencer toute règle par un terminal
-    	
+        for(int i = 1; i < productions.size(); i++) {
+
+        }
+    }
+
+    /**
+     * Dit si la règle passée en paramètre est montante.
+     *
+     * @param nonTerminal le sumbole non-terminal de la règle
+     * @param prod la production correspondante
+     * @return true si la règle est montante, faux sinon
+     */
+    private boolean estMontante(String nonTerminal, String prod) {
+        // TODO
+        return false;
     }
     
     /**
