@@ -726,9 +726,6 @@ public class Grammaire {
     public void nettoyer() {
         suppressionImproductifs();
         suppressionInaccesible();
-        suppressionEpsilons();
-        // TODO Fernando
-        //suppressionRenomage();
     }
 
     /**
@@ -736,6 +733,9 @@ public class Grammaire {
      */
     public void Chomsky() {
         nettoyer();
+        suppressionEpsilons();
+        // TODO Fernando
+        //suppressionRenomage();
         traiterTerminauxChomsky();
         traiterReglesChomsky();
     }
