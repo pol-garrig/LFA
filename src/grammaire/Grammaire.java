@@ -807,7 +807,7 @@ public class Grammaire {
             productions.put(nonTerminal1, productions.get(nonTerminal1).replaceAll("\\x7C\\s" + prod + "\\s\\x7C", "| " + oldProd + "|"));
             productions.put(nonTerminal1, productions.get(nonTerminal1).replaceAll("\\x7C\\s" + prod + "\\z", "| " + oldProd));
             ajouterRegle(nonTerminal2 + "1 ", " > " + newProd);
-            traiterRegleChomskyRec(newProd, nonTerminal2 + "1", nonTerminal2, 2);
+            traiterRegleChomskyRec(newProd, nonTerminal2 + "1 ", nonTerminal2, 2);
         }
     }
 
@@ -827,7 +827,7 @@ public class Grammaire {
             productions.put(nonTerminal1, productions.get(nonTerminal1).replaceAll("\\x7C\\s" + prod + "\\s\\x7C", "| " + oldProd + "|"));
             productions.put(nonTerminal1, productions.get(nonTerminal1).replaceAll("\\x7C\\s" + prod + "\\z", "| " + oldProd));
             ajouterRegle(nonTerminal2 + cnt + " ", " > " + newProd);
-            traiterRegleChomskyRec(newProd, nonTerminal2 + cnt, nonTerminal2, cnt++);
+            traiterRegleChomskyRec(newProd, nonTerminal2 + cnt + " ", nonTerminal2, cnt++);
         }
     }
 
@@ -887,27 +887,28 @@ public class Grammaire {
     public static void main(String[] args) throws IOException {
         Lecture lp = new Lecture();
         //Ecriture ec = new Ecriture();
-        lp.lecture();
+        lp.lecture("marctest.txt");
         Grammaire g = lp.getGrammaire();
         // System.out.println(g.nonTerminaux);
         // System.out.println(g.nonTerminaux);
         // g.suppressionRenomage();
         // g.suppressionInaccesible();
         // g.suppressionImproductifs();
+        /*
         g.suppressionEpsilons();
         // System.out.println(g.nonTerminaux);
         System.out.println(g.productions);
         System.out.println(g.algorithmeCYK("aabbab"));
+        */
 
         // System.out.println(g.productions);
         // System.out.println(g.nonTerminaux);
         // g.suppressionRenomage();
 
-        /*
+        System.out.println(g.productions);
         g.traiterTerminauxChomsky();
         System.out.println(g.productions);
         g.traiterReglesChomsky();
         System.out.println(g.productions);
-        */
     }
 }
