@@ -11,6 +11,7 @@ import java.util.Set;
 
 import org.omg.PortableServer.POA;
 
+import outils.Ecriture;
 import outils.Lecture;
 
 import com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel;
@@ -718,55 +719,427 @@ public class Grammaire {
         return false;
     }
 
-    /**
-     * @return un tableau contenant le nom des productions qui contiennent le
-     *         terminal en particulier
+    /*
+     * Ajoute une règle.
+     *
+     * @param nonTerminal le symbole non-terminal de la nouvelle règle
+     * @param production la ou les productions associées
      */
-    private ArrayList<String> getProductionsQuiContiennentLaVariable(
-            String variable) {
-        ArrayList<String> retour = new ArrayList<>();
-        System.out.println("parcours des productions qui contiennent "
-                + variable);
+    private void ajouterRegle(String nonTerminal, String production) {
+        if(productions.get(nonTerminal) != null) {
+            ajouteProd(nonTerminal, production);
+        }
+        else {
+            productions.put(nonTerminal, production);
+            nonTerminaux.add(nonTerminal);
+        }
+    }
 
+    /**
+     * Nettoie la grammaire.
+     */
+    public void nettoyer() {
+        suppressionImproductifs();
+        suppressionInaccesible();
+    }
+
+    /**
+     * Met la grammaire sous forme normale de Chomsky.
+     */
+    public void Chomsky() {
+        nettoyer();
+        suppressionEpsilons();
+        // TODO Fernando
+        //suppressionRenomage();
+        traiterTerminauxChomsky();
+        traiterReglesChomsky();
+    }
+
+    /**
+     * Crée une règle par terminal et les remplace dans les autres règles.
+     */
+    private void traiterTerminauxChomsky() {
         Set<String> keys = productions.keySet();
+        Iterator<String> it = keys.iterator();
+        String key, prod;
+
+        // Remplace dans les règles déjà existantes
+        while(it.hasNext()) {
+            key = it.next();
+            prod = productions.get(key);
+            for (String term: terminaux) {
+                prod = prod.replace(term, "C" + term);
+            }
+            productions.put(key, prod);
+        }
+
+        // Crée les règles
+        for (String term: terminaux) {
+            ajouterRegle("C" + term + " "," > " + term);
+        }
+    }
+
+    /**
+     * Traite les règles pour les mettre sous FNC.
+     */
+    private void traiterReglesChomsky() {
+        Map<String, String> temp = mapCopy(productions);
+        Set<String> keys = temp.keySet();
+        Iterator<String> it = keys.iterator();
+        String key;
+        char nonTerminal = 'M';
+        int i, l;
+
+        while(it.hasNext()) {
+            i = 0;
+            key = it.next();
+            l = produtions(productions.get(key)).size() - 1;
+            for (String prod: produtions(productions.get(key))) {
+                if(charOccur(prod, ' ') > 2) {
+                    if(i == 0 && i == l)
+                        traiterRegleChomsky(prod, key, "" + nonTerminal, 1, 0);
+                    else if(i == 0)
+                        traiterRegleChomsky(prod, key, "" + nonTerminal, 1, 1);
+                    else if(i == l)
+                        traiterRegleChomsky(prod, key, "" + nonTerminal, 1, 2);
+                    else traiterRegleChomsky(prod, key, "" + nonTerminal, 1, 3);
+                    nonTerminal++;
+                }
+                i++;
+            }
+        }
+    }
+
+    private ArrayList<String> getProductionsQuiContiennentLaVariable(String variable)
+    {
+    	ArrayList<String> retour = new ArrayList<>();
+    	System.out.println("parcours des productions qui contiennent " + variable);
+    	
+    	
+		Set<String> keys = productions.keySet();
+		Iterator<String> it = keys.iterator();
+		String key;
+
+		while (it.hasNext()) 
+		{
+			key = it.next();
+			System.out.print(key+"-");
+			// Parcours des productions
+			for (String prod : produtions(productions.get(key))) 
+			{
+
+				if(prod.contains(variable) && !retour.contains(variable))
+				{
+					System.out.print("->BONNE!");
+					String result = key.replaceAll(" ","");
+					retour.add(result);
+					
+					
+					break; // Sortie forcée du for 
+				}
+			}
+			System.out.println();
+		}
+    		
+    	System.out.print("Liste des productions bonnes :");
+    	for(int i = 0 ; i < retour.size() ; i++)
+    	{
+    		System.out.print(retour.get(i) + " ");
+    	}
+    	System.out.println("\nfin de parcours");
+		return retour;
+    	
+    }
+
+    public void formeNormaleGreibach()
+    {
+    	// Sans renommage
+    	// Sans E-production
+    	
+    	String[] tabProductions = null;
+    	
+    	
+		Set<String> keys = productions.keySet();
+		Iterator<String> it = keys.iterator();
+		String key;
+
+		while (it.hasNext()) 
+		{
+			key = it.next();
+			
+			// Parcours des productions
+			for (String prod : produtions(productions.get(key))) 
+			{
+				// Pour chaque production, on regarde s'il y a des recursivités gauches et on les enlève
+				
+			}
+		}
+    	
+			// Puis ensuite on fait commencer toute règle par un terminal
+    	
+    }
+    
+    /**
+     * Supprime toutes les recursivités gauches
+     *  Pré-requis : doit être au bon format pour retirer (sans renommage ni e-production)
+     */
+    public void supRecursiviteGauche()
+    {
+    	
+    	// Création d'une copie temporaire des productions où on construit notre nouvelle grammaire
+    	Map<String, String> tmpProductions = new HashMap<>();
+    	//tmpProductions.putAll(productions);
+    	
+		
+		String[] variablesDeLaProduction = null;
+		ArrayList<String> recursivitesGauchesDeLaProduction = new ArrayList<>();
+		ArrayList<String> terminauxDeLaProduction = new ArrayList<>();
+		// La regle, si a des recursivités gauches, sera coupé en deux règles.
+		String regle1 = "", regle2 = "", keyregle1 = "", keyregle2 = "", tmpProduction = "";
+
+		// Parcours des productions
+		Set<String> keys = productions.keySet();
+		Iterator<String> it = keys.iterator();
+		String key;
+		
+		
+		while (it.hasNext()) 
+		{
+			key = it.next();
+			
+			System.out.println("===========================Production " + key);
+			// Parcours des productions
+			//for (String prod : produtions(productions.get(key))) 
+			//{
+				tmpProduction = productions.get(key);
+				System.out.println("Production : " + tmpProduction );
+				
+				
+				// On supprime les éventuels espaces indésirables dû à la lecture de la grammaire, ou fleches
+				tmpProduction = tmpProduction.replaceAll(">","");
+				tmpProduction = tmpProduction.replaceAll(" ","");
+				
+				System.out.println("Production : " + tmpProduction );
+				
+				
+				// On sépare chaque variable. et on les stocke dans un tableau
+				variablesDeLaProduction = tmpProduction.split("\\|");
+				
+				System.out.println("Splitté");
+				for(int i = 0 ; i < variablesDeLaProduction.length ; i++)
+				{
+					System.out.print(variablesDeLaProduction[i] + "-");
+				}
+				System.out.println();
+				
+				// Pour chaque variable on regarde si elle finit par un terminal, ou si elle est un terminal.
+				// On sépare ces deux types afin de reformer la grammaire :
+				for(int i = 0 ; i < variablesDeLaProduction.length ; i++)
+				{
+					// Si elle finit par un terminal : forme Aa (deux caracteres et le dernier caractère appartient aux terminaux
+					if(variablesDeLaProduction[i].length() == 2 && terminaux.contains(variablesDeLaProduction[i].substring(1))  )
+					{
+						System.out.println("Recursivité gauche : " + variablesDeLaProduction[i]);
+						recursivitesGauchesDeLaProduction.add(variablesDeLaProduction[i]);
+					}
+					// Sinon si c'est un terminal
+					else if (terminaux.contains(variablesDeLaProduction[i]))
+					{
+						System.out.println("Terminal : " + variablesDeLaProduction[i]);
+						terminauxDeLaProduction.add(variablesDeLaProduction[i]);
+					}
+					// S'il y a d'autres types, alors la grammaire n'était pas prête à subir l'algorithme de suppression 
+					// De la récursivité gauche
+					else
+					{
+						System.out.println("ERREUR : Recursivité gauche : echec d'identification d'un élément"
+								+ " de la grammaire. forme incorrecte : ->" + variablesDeLaProduction[i] + " <-");
+						return;
+					}				
+				}	
+
+			// S'il y a des recursivités gauches à retirer
+			if(!recursivitesGauchesDeLaProduction.isEmpty())
+			{
+				System.out.println("Ajout à la nouvelle production");
+				// On dispose maintenant de deux listes qui séparent les éléments à séparer.
+				// A -> Aa1 | Aa2 | ... | b1 | b2 | ...
+				// On applique l'algorithme de suppression
+				
+				// On remplace A par 
+				// A -> b.A' | b1A' | ... 
+				// En utilisant regle1 comme intermediaire
+				for(int i = 0 ; i < terminauxDeLaProduction.size() ; i++)
+				{
+					regle1 += (terminauxDeLaProduction.get(i) + key.replaceAll(" ", "") + "'");
+					
+					// Ajout d'un séparateur, sauf pour le dernier cas
+					if(i < terminauxDeLaProduction.size()-1)
+						regle1 += " | ";
+				}
+				
+				System.out.println ("REGLE 1 : " + keyregle1 + "__" + regle1 );
+				
+				// A' -> epsilon | aA' | a2A'
+				regle2 += "ε" + " | "; // Ajout du epsilon
+				for(int i = 0 ; i < recursivitesGauchesDeLaProduction.size() ; i++)
+				{
+					regle2 += ( recursivitesGauchesDeLaProduction.get(i).substring(1) + key.replaceAll(" ", "") + "'" );
+					
+					// Ajout d'un séparateur, sauf pour le dernier cas
+					if(i <= recursivitesGauchesDeLaProduction.size()-2)
+						regle2 += " | ";  
+				}
+				System.out.println ("REGLE 2 : " + keyregle2 + "__" + regle2 );
+				// Enfin, ajout  des règles dans la hashmap temporaire.
+				tmpProductions.remove(key); // Suppression de l'ancienne règle, si présente.
+				keyregle1 = key.replaceAll(" ","");
+				tmpProductions.put(keyregle1, regle1);
+				
+				keyregle2 = ( key.replaceAll(" ","") + "'" );
+				System.out.println("1" + tmpProductions);
+				// Si la regle A' existe déjà, on rajoute un ' jusqu'à ce que la règle soit disponible
+				while(terminaux.contains(keyregle2))
+				{
+					keyregle2 += "'";
+				}
+				
+				// Puis on l'ajoute
+				tmpProductions.put(( keyregle2 + " > " ), regle2);			
+				// On ajoute le nouveay terminal créé
+				terminaux.add( ( keyregle2 ));
+				
+				System.out.println("tmpProductions : " + tmpProductions);
+				
+				System.out.println("--------------");
+			}	
+			System.out.println("1" + tmpProductions);
+			// On réinitialise les variables qu'on utilise, et on ajoute nos productions à la hash
+			regle1 = "";
+			regle2 = "";
+			keyregle2 = "";
+			keyregle1 = "";
+			tmpProduction = "";
+			terminauxDeLaProduction.clear();
+			recursivitesGauchesDeLaProduction.clear();
+
+			
+		}	
+	
+		// On met la nouvelle grammaire dans production
+		productions.clear();
+		
+		
+		System.out.println("production vide :" + productions);
+		System.out.println("tmpProductions : " + tmpProductions);
+		productions.putAll(tmpProductions);
+
+		System.out.println("production re-remplie : " + productions);
+		System.out.println("fini");
+    }
+
+    /**
+     * Traite récursivement une règle pour la mettre sous FNC.
+     *
+     * @param prod la production à traiter
+     * @param nonTerminal1 le symbole non-terminal correspondant à la règle
+     * @param nonTerminal2 le symbole non-terminal des règles engendrées par le traitement
+     * @param cnt numéro de la prochaine règle à créer
+     * @param cas numéro correspondant au cas relatif à la position de la production dans la règle
+     */
+    private void traiterRegleChomsky(String prod, String nonTerminal1, String nonTerminal2, int cnt, int cas) {
+        String newProd, oldProd;
+
+        if(charOccur(prod, ' ') > 2) {
+            int i = prod.indexOf(' ');
+
+            prod = prod.substring(0, prod.length() - 1);
+            oldProd = prod.substring(0, i);
+            oldProd += " " + nonTerminal2 + cnt + " ";
+            newProd = prod.substring(i + 1, prod.length()) + " ";
+            if(cas == 0)
+                productions.put(nonTerminal1, productions.get(nonTerminal1).replaceAll(prod, oldProd));
+            if(cas == 1)
+                productions.put(nonTerminal1, productions.get(nonTerminal1).replaceAll(prod + "\\s\\x7C", oldProd + "|"));
+            if(cas == 3)
+                productions.put(nonTerminal1, productions.get(nonTerminal1).replaceAll("\\x7C\\s" + prod + "\\s\\x7C", "| " + oldProd + "|"));
+            if(cas == 2)
+                productions.put(nonTerminal1, productions.get(nonTerminal1).replaceAll("\\x7C\\s" + prod + "\\z", "| " + oldProd));
+            ajouterRegle(nonTerminal2 + cnt + " ", " > " + newProd);
+            traiterRegleChomsky(newProd, nonTerminal2 + cnt + " ", nonTerminal2, cnt + 1, 0);
+        }
+    }
+
+    /**
+     * Calcule le nombre d'occurences d'un caractère dans une chaîne.
+     *
+     * @param str la chaîne dans laquelle chercher le caractère
+     * @param c le caractère à rechercher
+     * @return le nombre d'occurences
+     */
+    private static int charOccur(String str, char c) {
+        int i = -1, cnt = 0;
+
+        while((i = str.indexOf(c, i + 1)) != -1) {
+            cnt++;
+        }
+        return cnt;
+    }
+
+    /**
+     * Calcule l'index d'un n-ième caractère répété dans une chaîne.
+     *
+     * @param str la chaîne dans laquelle chercher le caractère
+     * @param c le caractère à rechercher
+     * @param n la n-ième appartition du caractère à rechercher
+     * @return l'index
+     */
+    private static int nCharIndex(String str, char c, int n) {
+        int i = -1, cnt = 0;
+
+        while((i = str.indexOf(c, i + 1)) != -1 && cnt < n) {
+            cnt++;
+        }
+        return i;
+    }
+
+    /**
+     * Copie une HashMap<String, String>.
+     *
+     * @param src la map à copier
+     * @return la copie
+     */
+    private static HashMap<String, String> mapCopy(Map<String, String> src) {
+        HashMap<String, String> copy = new HashMap<String, String>();
+        Set<String> keys = src.keySet();
         Iterator<String> it = keys.iterator();
         String key;
 
-        while (it.hasNext()) {
+        while(it.hasNext()) {
             key = it.next();
-            System.out.print(key + "-");
-            // Parcours des productions
-            for (String prod : produtions(productions.get(key))) {
-
-                if (prod.contains(variable) && !retour.contains(variable)) {
-                    System.out.print("->BONNE!");
-                    String result = key.replaceAll(" ", "");
-                    retour.add(result);
-
-                    break; // Sortie forcée du for
-                }
-            }
-            System.out.println();
+            copy.put(key, src.get(key));
         }
 
-        System.out.print("Liste des productions bonnes :");
-        for (int i = 0; i < retour.size(); i++) {
-            System.out.print(retour.get(i) + " ");
-        }
-        System.out.println("\nfin de parcours");
-        return retour;
-
+        return copy;
     }
 
     public static void main(String[] args) throws IOException {
         Lecture lp = new Lecture();
+        //Ecriture ec = new Ecriture();
         lp.lecture();
         Grammaire g = lp.getGrammaire();
+
+        //System.out.println(g.algorithmeCYK("aabbab"));
+        
+        g.supRecursiviteGauche();
+        
+        System.out.println(g.productions);
         // System.out.println(g.nonTerminaux);
         // System.out.println(g.nonTerminaux);
         g.suppressionInaccesible();
         g.suppressionImproductifs();
         // g.suppressionRenomage();
+        
         g.suppressionProductions(g.nonTerminaux);
         System.out.println(g.productions);
         System.out.println(g.nonTerminaux);
@@ -774,9 +1147,24 @@ public class Grammaire {
         // System.out.println(g.nonTerminaux);
         // System.out.println(g.chemin("C"));
         // System.out.println(g.algorithmeCYK("aa"));
+        
+        // g.suppressionInaccesible();
+        // g.suppressionImproductifs();
+        /*
+        g.suppressionEpsilons();
+        // System.out.println(g.nonTerminaux);
+        System.out.println(g.productions);
+        System.out.println(g.algorithmeCYK("aabbab"));
+        */
+
         // System.out.println(g.productions);
         // System.out.println(g.nonTerminaux);
         // g.suppressionRenomage();
-
+/*
+        System.out.println(g.productions);
+        g.traiterTerminauxChomsky();
+        System.out.println(g.productions);
+        g.traiterReglesChomsky();
+        System.out.println(g.productions);*/
     }
 }
