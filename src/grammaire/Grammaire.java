@@ -773,14 +773,24 @@ public class Grammaire {
         Iterator<String> it = keys.iterator();
         String key;
         char nonTerminal = 'M';
+        int i, l;
 
         while(it.hasNext()) {
+            i = 0;
             key = it.next();
+            l = produtions(productions.get(key)).size() - 1;
             for (String prod: produtions(productions.get(key))) {
                 if(charOccur(prod, ' ') > 2) {
-                    traiterRegleChomsky(prod, key, "" + nonTerminal, 1);
+                    if(i == 0 && i == l)
+                        traiterRegleChomsky(prod, key, "" + nonTerminal, 1, 0);
+                    else if(i == 0)
+                        traiterRegleChomsky(prod, key, "" + nonTerminal, 1, 1);
+                    else if(i == l)
+                        traiterRegleChomsky(prod, key, "" + nonTerminal, 1, 2);
+                    else traiterRegleChomsky(prod, key, "" + nonTerminal, 1, 3);
                     nonTerminal++;
                 }
+                i++;
             }
         }
     }
@@ -792,8 +802,9 @@ public class Grammaire {
      * @param nonTerminal1 le symbole non-terminal correspondant à la règle
      * @param nonTerminal2 le symbole non-terminal des règles engendrées par le traitement
      * @param cnt numéro de la prochaine règle à créer
+     * @param cas numéro correspondant au cas relatif à la position de la production dans la règle
      */
-    private void traiterRegleChomsky(String prod, String nonTerminal1, String nonTerminal2, int cnt) {
+    private void traiterRegleChomsky(String prod, String nonTerminal1, String nonTerminal2, int cnt, int cas) {
         String newProd, oldProd;
 
         if(charOccur(prod, ' ') > 2) {
@@ -802,13 +813,17 @@ public class Grammaire {
             prod = prod.substring(0, prod.length() - 1);
             oldProd = prod.substring(0, i);
             oldProd += " " + nonTerminal2 + cnt + " ";
-            newProd = prod.substring(i + 1, prod.length());
-            productions.put(nonTerminal1, productions.get(nonTerminal1).replaceAll(prod, oldProd));
-            productions.put(nonTerminal1, productions.get(nonTerminal1).replaceAll(prod + "\\s\\x7C", oldProd + "|"));
-            productions.put(nonTerminal1, productions.get(nonTerminal1).replaceAll("\\x7C\\s" + prod + "\\s\\x7C", "| " + oldProd + "|"));
-            productions.put(nonTerminal1, productions.get(nonTerminal1).replaceAll("\\x7C\\s" + prod + "\\z", "| " + oldProd));
+            newProd = prod.substring(i + 1, prod.length()) + " ";
+            if(cas == 0)
+                productions.put(nonTerminal1, productions.get(nonTerminal1).replaceAll(prod, oldProd));
+            if(cas == 1)
+                productions.put(nonTerminal1, productions.get(nonTerminal1).replaceAll(prod + "\\s\\x7C", oldProd + "|"));
+            if(cas == 3)
+                productions.put(nonTerminal1, productions.get(nonTerminal1).replaceAll("\\x7C\\s" + prod + "\\s\\x7C", "| " + oldProd + "|"));
+            if(cas == 2)
+                productions.put(nonTerminal1, productions.get(nonTerminal1).replaceAll("\\x7C\\s" + prod + "\\z", "| " + oldProd));
             ajouterRegle(nonTerminal2 + cnt + " ", " > " + newProd);
-            traiterRegleChomsky(newProd, nonTerminal2 + cnt + " ", nonTerminal2, cnt++);
+            traiterRegleChomsky(newProd, nonTerminal2 + cnt + " ", nonTerminal2, cnt + 1, 0);
         }
     }
 
