@@ -1,6 +1,4 @@
-S > a b | B B a | C 
-A > B
-B > B b | C
-C > E a | ε 
-
-
+S > a b | a A b | A | B | A B | a
+A > A | A A | A B | B | A A B 
+B > A | C | A C | b | E
+C > a b a 
