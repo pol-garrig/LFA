@@ -180,7 +180,6 @@ public class Grammaire {
                 p.add(nonTerminaux.get(g));
             }
         }
-        System.out.println("p = " + p);
         // On regarde tous les productions avec Epsilons
         // et on le garde dans prodEpsilon
         for (int i = 0; i < p.size(); i++) {
@@ -191,17 +190,11 @@ public class Grammaire {
         // On regarde les non terminaux pour savoir
         // ce que vont vers les epsilon
         cheminEpsilon = copieList(prodEpsilon);
-        System.out.println("prod e ))= " + prodEpsilon);
         for (int i = 0; i < p.size(); i++) {
             for (int j = 0; j < prodEpsilon.size(); j++) {
-                if (productions.get(p.get(i) + " ")
-                        .contains(prodEpsilon.get(j))
-                        && !cheminEpsilon.contains(p.get(i))) {
-                    cheminEpsilon.add(p.get(i));
-                }
+                cheminEpsilon.addAll(chemin(prodEpsilon.get(j)));
             }
         }
-        System.out.println("Chemin e = " + cheminEpsilon);
         // On va remplacer les epsilons ...
         for (int i = 0; i < prodEpsilon.size(); i++) {
 
@@ -225,8 +218,7 @@ public class Grammaire {
             String s = "";
             String f = "";
             for (int i = 0; i < productions.size(); i++) {
-                // pas bonne
-                System.out.println("chemin = " + cheminEpsilon);
+
                 f = productions.get(cheminEpsilon.get(i) + " ");
                 for (int j = 0; j < cheminEpsilon.size(); j++) {
                     // On reemplace les epsilons pour les productions
@@ -257,10 +249,16 @@ public class Grammaire {
 
         String temp = "";
         // On cherche ren0 ,ren1 ,etc ..
+        System.out.println();
         for (int i = 0; i < productions.size(); i++) {
             for (int j = 0; j < nonTerminaux.size(); j++) {
-                if (productions.get(nonTerminaux.get(i) + " ").contains(
-                        nonTerminaux.get(j))) {
+                System.out.println("prod = "
+                        + productions.get(nonTerminaux.get(i) + " "));
+                System.out.println("nonter = " + nonTerminaux.get(j));
+
+                if (productions.get(nonTerminaux.get(i) + " ") != null
+                        && productions.get(nonTerminaux.get(i) + " ").contains(
+                                nonTerminaux.get(j))) {
                     if (!r.contains(nonTerminaux.get(i))) {
                         r.add(nonTerminaux.get(i));
                     }
@@ -282,6 +280,7 @@ public class Grammaire {
 
             r.clear();
         }
+        System.out.println(ren);
         // On cherche les Rem 2 ,3 ...
         for (int i = 0; i < ren.size(); i++) {
             t = ren.get(nonTerminaux.get(i) + " ");
@@ -316,7 +315,18 @@ public class Grammaire {
                 temp.add(key.substring(0, key.length() - 1));
             }
         }
-
+        for (int i = 0; i < productions.size(); i++) {
+            for (int j = 0; j < temp.size(); j++) {
+                for (int j2 = 0; j2 < nonTerminaux.size(); j2++) {
+                    prod = productions.get(nonTerminaux.get(j2) + " ");
+                    if (prod != null && prod.contains(temp.get(j))
+                            && !t.contains(nonTerminaux.get(j2))) {
+                        t.add(nonTerminaux.get(j2));
+                    }
+                }
+            }
+        }
+        temp = copieList(t);
         return temp;
     }
 
@@ -405,7 +415,6 @@ public class Grammaire {
         List<String> l = new ArrayList<>();
         String temp = "";
         l = produtions(s);
-        System.out.println(l);
         l.addAll(produtions(s2));
         temp = suppressionDupliProd(l);
         return temp;
@@ -492,11 +501,7 @@ public class Grammaire {
             } else {
                 temp = produtions(t);
             }
-            System.out.println(t);
         }
-        System.out.println(temp);
-        System.out.println(productions);
-        System.out.println(nonTerminaux);
     }
 
     public void setNonTerminaux(String i) {
@@ -586,6 +591,31 @@ public class Grammaire {
             s += l.get(i);
         }
         return s;
+    }
+
+    public Map<String, String> suppressionProductions(List<String> l) {
+        Map<String, String> temp = new HashMap<>();
+        String prod;
+        List<String> t = new ArrayList<>();
+        for (int i = 0; i < l.size(); i++) {
+            prod = productions.get(l.get(i) + " ");
+            temp.put(l.get(i) + " ", prod);
+
+        }
+        for (int j = 0; j < l.size(); j++) {
+            System.out.println(j);
+            prod = productions.get(l.get(j) + " ");
+            t = produtions(prod);
+            System.out.println(produtions(prod));
+            for (int k = 0; k < t.size(); k++) {
+                
+            }
+            System.out.println("l = "+l.get(j));
+
+        }
+        System.out.println("temp = " + temp);
+        // productions = temp;
+        return temp;
     }
 
     /**
@@ -734,14 +764,16 @@ public class Grammaire {
         Grammaire g = lp.getGrammaire();
         // System.out.println(g.nonTerminaux);
         // System.out.println(g.nonTerminaux);
+        g.suppressionInaccesible();
+        g.suppressionImproductifs();
         // g.suppressionRenomage();
-        // g.suppressionInaccesible();
-        // g.suppressionImproductifs();
+        g.suppressionProductions(g.nonTerminaux);
+        System.out.println(g.productions);
+        System.out.println(g.nonTerminaux);
         // g.suppressionEpsilons();
         // System.out.println(g.nonTerminaux);
-        System.out.println(g.chemin("C"));
+        // System.out.println(g.chemin("C"));
         // System.out.println(g.algorithmeCYK("aa"));
-
         // System.out.println(g.productions);
         // System.out.println(g.nonTerminaux);
         // g.suppressionRenomage();
