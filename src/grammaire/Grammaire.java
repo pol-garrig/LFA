@@ -708,20 +708,220 @@ public class Grammaire {
     }
 
     
+    
+    
+    
+    public void formeNormaleGreibach()
+    {
+    	// Sans renommage
+    	// Sans E-production
+    	
+    	String[] tabProductions = null;
+    	
+    	
+		Set<String> keys = productions.keySet();
+		Iterator<String> it = keys.iterator();
+		String key;
+
+		while (it.hasNext()) 
+		{
+			key = it.next();
+			
+			// Parcours des productions
+			for (String prod : produtions(productions.get(key))) 
+			{
+				// Pour chaque production, on regarde s'il y a des recursivités gauches et on les enlève
+				
+			}
+		}
+    	
+			// Puis ensuite on fait commencer toute règle par un terminal
+    	
+    }
+    
+    
+    
+    /**
+     * Supprime toutes les recursivités gauches
+     *  Pré-requis : doit être au bon format pour retirer (sans renommage ni e-production)
+     */
+    public void supRecursiviteGauche()
+    {
+    	
+    	// Création d'une copie temporaire des productions où on construit notre nouvelle grammaire
+    	Map<String, String> tmpProductions = new HashMap<>();
+    	//tmpProductions.putAll(productions);
+    	
+		
+		String[] variablesDeLaProduction = null;
+		ArrayList<String> recursivitesGauchesDeLaProduction = new ArrayList<>();
+		ArrayList<String> terminauxDeLaProduction = new ArrayList<>();
+		// La regle, si a des recursivités gauches, sera coupé en deux règles.
+		String regle1 = "", regle2 = "", keyregle1 = "", keyregle2 = "", tmpProduction = "";
+
+		// Parcours des productions
+		Set<String> keys = productions.keySet();
+		Iterator<String> it = keys.iterator();
+		String key;
+		
+		
+		while (it.hasNext()) 
+		{
+			key = it.next();
+			
+			System.out.println("===========================Production " + key);
+			// Parcours des productions
+			//for (String prod : produtions(productions.get(key))) 
+			//{
+				tmpProduction = productions.get(key);
+				System.out.println("Production : " + tmpProduction );
+				
+				
+				// On supprime les éventuels espaces indésirables dû à la lecture de la grammaire, ou fleches
+				tmpProduction = tmpProduction.replaceAll(">","");
+				tmpProduction = tmpProduction.replaceAll(" ","");
+				
+				System.out.println("Production : " + tmpProduction );
+				
+				
+				// On sépare chaque variable. et on les stocke dans un tableau
+				variablesDeLaProduction = tmpProduction.split("\\|");
+				
+				System.out.println("Splitté");
+				for(int i = 0 ; i < variablesDeLaProduction.length ; i++)
+				{
+					System.out.print(variablesDeLaProduction[i] + "-");
+				}
+				System.out.println();
+				
+				// Pour chaque variable on regarde si elle finit par un terminal, ou si elle est un terminal.
+				// On sépare ces deux types afin de reformer la grammaire :
+				for(int i = 0 ; i < variablesDeLaProduction.length ; i++)
+				{
+					// Si elle finit par un terminal : forme Aa (deux caracteres et le dernier caractère appartient aux terminaux
+					if(variablesDeLaProduction[i].length() == 2 && terminaux.contains(variablesDeLaProduction[i].substring(1))  )
+					{
+						System.out.println("Recursivité gauche : " + variablesDeLaProduction[i]);
+						recursivitesGauchesDeLaProduction.add(variablesDeLaProduction[i]);
+					}
+					// Sinon si c'est un terminal
+					else if (terminaux.contains(variablesDeLaProduction[i]))
+					{
+						System.out.println("Terminal : " + variablesDeLaProduction[i]);
+						terminauxDeLaProduction.add(variablesDeLaProduction[i]);
+					}
+					// S'il y a d'autres types, alors la grammaire n'était pas prête à subir l'algorithme de suppression 
+					// De la récursivité gauche
+					else
+					{
+						System.out.println("ERREUR : Recursivité gauche : echec d'identification d'un élément"
+								+ " de la grammaire. forme incorrecte : ->" + variablesDeLaProduction[i] + " <-");
+						return;
+					}				
+				}	
+
+			// S'il y a des recursivités gauches à retirer
+			if(!recursivitesGauchesDeLaProduction.isEmpty())
+			{
+				System.out.println("Ajout à la nouvelle production");
+				// On dispose maintenant de deux listes qui séparent les éléments à séparer.
+				// A -> Aa1 | Aa2 | ... | b1 | b2 | ...
+				// On applique l'algorithme de suppression
+				
+				// On remplace A par 
+				// A -> b.A' | b1A' | ... 
+				// En utilisant regle1 comme intermediaire
+				for(int i = 0 ; i < terminauxDeLaProduction.size() ; i++)
+				{
+					regle1 += (terminauxDeLaProduction.get(i) + key.replaceAll(" ", "") + "'");
+					
+					// Ajout d'un séparateur, sauf pour le dernier cas
+					if(i < terminauxDeLaProduction.size()-1)
+						regle1 += " | ";
+				}
+				
+				System.out.println ("REGLE 1 : " + keyregle1 + "__" + regle1 );
+				
+				// A' -> epsilon | aA' | a2A'
+				regle2 += "ε" + " | "; // Ajout du epsilon
+				for(int i = 0 ; i < recursivitesGauchesDeLaProduction.size() ; i++)
+				{
+					regle2 += ( recursivitesGauchesDeLaProduction.get(i).substring(1) + key.replaceAll(" ", "") + "'" );
+					
+					// Ajout d'un séparateur, sauf pour le dernier cas
+					if(i <= recursivitesGauchesDeLaProduction.size()-2)
+						regle2 += " | ";  
+				}
+				System.out.println ("REGLE 2 : " + keyregle2 + "__" + regle2 );
+				// Enfin, ajout  des règles dans la hashmap temporaire.
+				tmpProductions.remove(key); // Suppression de l'ancienne règle, si présente.
+				keyregle1 = key.replaceAll(" ","");
+				tmpProductions.put(keyregle1, regle1);
+				
+				keyregle2 = ( key.replaceAll(" ","") + "'" );
+				System.out.println("1" + tmpProductions);
+				// Si la regle A' existe déjà, on rajoute un ' jusqu'à ce que la règle soit disponible
+				while(terminaux.contains(keyregle2))
+				{
+					keyregle2 += "'";
+				}
+				
+				// Puis on l'ajoute
+				tmpProductions.put(( keyregle2 + " > " ), regle2);			
+				// On ajoute le nouveay terminal créé
+				terminaux.add( ( keyregle2 ));
+				
+				System.out.println("tmpProductions : " + tmpProductions);
+				
+				System.out.println("--------------");
+			}	
+			System.out.println("1" + tmpProductions);
+			// On réinitialise les variables qu'on utilise, et on ajoute nos productions à la hash
+			regle1 = "";
+			regle2 = "";
+			keyregle2 = "";
+			keyregle1 = "";
+			tmpProduction = "";
+			terminauxDeLaProduction.clear();
+			recursivitesGauchesDeLaProduction.clear();
+
+			
+		}	
+	
+		// On met la nouvelle grammaire dans production
+		productions.clear();
+		
+		
+		System.out.println("production vide :" + productions);
+		System.out.println("tmpProductions : " + tmpProductions);
+		productions.putAll(tmpProductions);
+
+		System.out.println("production re-remplie : " + productions);
+		System.out.println("fini");
+    }
+    
+   
+    
+    
+    
+    
+    
+    
+    
     public static void main(String[] args) throws IOException {
         Lecture lp = new Lecture();
         lp.lecture();
         Grammaire g = lp.getGrammaire();
         
         
-        System.out.println(g.algorithmeCYK("aabbab"));
+        //System.out.println(g.algorithmeCYK("aabbab"));
 
         
+        g.supRecursiviteGauche();
         
         
         
-        
-       // System.out.println(g.productions);
+        System.out.println(g.productions);
         // System.out.println(g.nonTerminaux);
        // g.suppressionRenomage();
     }
