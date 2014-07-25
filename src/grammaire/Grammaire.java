@@ -158,7 +158,6 @@ public class Grammaire {
         // et pour finir on copie les productifs dans l'arraylist des non
         // terminaux
         nonTerminaux = copieList(p2);
-        productions = suppressionProductions(nonTerminaux);
     }
 
     /**
