@@ -723,7 +723,7 @@ public class Grammaire {
         return false;
     }
 
-    /*
+    /**
      * Ajoute une règle.
      * 
      * @param nonTerminal le symbole non-terminal de la nouvelle règle
@@ -871,9 +871,34 @@ public class Grammaire {
 
             }
         }
-
+    }
         // Puis ensuite on fait commencer toute règle par un terminal
 
+    /**
+     * Mets la grammaire sous forme normale de Greibach.
+     */
+    /*public void formeNormaleGreibach()
+    {
+        nettoyer();
+        suppressionEpsilons();
+        // TODO Fernando décommenter suppressionRenomage()
+        //suppressionRenomage();
+
+        for(int i = 1; i < productions.size(); i++) {
+
+        }
+    }*/
+
+    /**
+     * Dit si la règle passée en paramètre est montante.
+     *
+     * @param nonTerminal le sumbole non-terminal de la règle
+     * @param prod la production correspondante
+     * @return true si la règle est montante, faux sinon
+     */
+    private boolean estMontante(String nonTerminal, String prod) {
+        // TODO
+        return false;
     }
 
     /**
