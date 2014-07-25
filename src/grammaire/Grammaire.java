@@ -1,23 +1,9 @@
 package grammaire;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.omg.PortableServer.POA;
-
-import outils.Ecriture;
 import outils.Lecture;
 
-import com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel;
-import com.sun.org.apache.bcel.internal.generic.L2D;
-import com.sun.org.apache.xpath.internal.axes.ChildIterator;
-import com.sun.xml.internal.ws.wsdl.writer.document.Port;
+import java.io.IOException;
+import java.util.*;
 
 /**
  * Created by Fernando on 03/07/2014 for the project LFA.
@@ -37,7 +23,7 @@ public class Grammaire {
     // Précondition : doit appartenir aux symboles non terminaux.
     private String axiome;
 
-    public Grammaire() {
+    public Grammaire () {
         nonTerminaux = new ArrayList<>();
         terminaux = new ArrayList<>();
         productions = new HashMap<>();
@@ -48,7 +34,7 @@ public class Grammaire {
     /**
      * Methode pour supprimer les inaccesibles
      */
-    public void suppressionInaccesible() {
+    public void suppressionInaccesible () {
         List<String> temp = new ArrayList<>();
         String prod;
         int t = 1;
@@ -71,8 +57,7 @@ public class Grammaire {
                     prod = productions.get(temp.get(t) + " ");
                     if (prod != null) {
                         for (int k = 0; k < nonTerminaux.size(); k++) {
-                            if (prod.contains(nonTerminaux.get(k))
-                                    && !temp.contains(nonTerminaux.get(k))) {
+                            if (prod.contains(nonTerminaux.get(k)) && !temp.contains(nonTerminaux.get(k))) {
                                 temp.add(nonTerminaux.get(k));
                             }
                         }
@@ -90,7 +75,7 @@ public class Grammaire {
     /**
      * Methode pour suppimer les improductifs
      */
-    public void suppressionImproductifs() {
+    public void suppressionImproductifs () {
         System.out.println(productions);
         List<String> p1 = new ArrayList<>();
         List<String> p2 = new ArrayList<>();
@@ -121,9 +106,7 @@ public class Grammaire {
 
                 // On regarde s'il y a des terminaux dans les producition et des
                 // non terminaux
-                if (containsTerminaux(temp.get(j))
-                        && !containsNonTerminaux(temp.get(j))
-                        && !p1.contains(p.get(i))) {
+                if (containsTerminaux(temp.get(j)) && !containsNonTerminaux(temp.get(j)) && !p1.contains(p.get(i))) {
                     // si on est seulement des terminaux on le garde en p1
                     p1.add(p.get(i));
                 }
@@ -162,7 +145,7 @@ public class Grammaire {
     /**
      * Methode pour supprimer les Epsilons du productions
      */
-    public void suppressionEpsilons() {
+    public void suppressionEpsilons () {
         // liste des non terminaux avec epsilons
         List<String> prodEpsilon = new ArrayList<>();
         // liste des non terminaux avec non terminaux avec epsilons
@@ -207,8 +190,7 @@ public class Grammaire {
                     p.remove(p.get(j));
                     // On garde les producitons sans les epsilons
                     productions.remove(prodEpsilon.get(i) + " ");
-                    productions.put(prodEpsilon.get(i) + " ", " "
-                            + productionsString(p));
+                    productions.put(prodEpsilon.get(i) + " ", " " + productionsString(p));
                 }
             }
         }
@@ -242,7 +224,7 @@ public class Grammaire {
         }
     }
 
-    public void suppressionRenomage() {
+    public void suppressionRenomage () {
         Map<String, List<String>> ren = new HashMap<>();
         List<String> r = new ArrayList<>();
         List<String> t = new ArrayList<>();
@@ -253,13 +235,10 @@ public class Grammaire {
         System.out.println();
         for (int i = 0; i < productions.size(); i++) {
             for (int j = 0; j < nonTerminaux.size(); j++) {
-                System.out.println("prod = "
-                        + productions.get(nonTerminaux.get(i) + " "));
+                System.out.println("prod = " + productions.get(nonTerminaux.get(i) + " "));
                 System.out.println("nonter = " + nonTerminaux.get(j));
 
-                if (productions.get(nonTerminaux.get(i) + " ") != null
-                        && productions.get(nonTerminaux.get(i) + " ").contains(
-                                nonTerminaux.get(j))) {
+                if (productions.get(nonTerminaux.get(i) + " ") != null && productions.get(nonTerminaux.get(i) + " ").contains(nonTerminaux.get(j))) {
                     if (!r.contains(nonTerminaux.get(i))) {
                         r.add(nonTerminaux.get(i));
                     }
@@ -298,10 +277,9 @@ public class Grammaire {
     }
 
     /**
-     * 
      * @param C
      */
-    public List<String> chemin(String c) {
+    public List<String> chemin (String c) {
         Set<String> keys = productions.keySet();
         Iterator<String> it = keys.iterator();
         String key;
@@ -320,8 +298,7 @@ public class Grammaire {
             for (int j = 0; j < temp.size(); j++) {
                 for (int j2 = 0; j2 < nonTerminaux.size(); j2++) {
                     prod = productions.get(nonTerminaux.get(j2) + " ");
-                    if (prod != null && prod.contains(temp.get(j))
-                            && !t.contains(nonTerminaux.get(j2))) {
+                    if (prod != null && prod.contains(temp.get(j)) && !t.contains(nonTerminaux.get(j2))) {
                         t.add(nonTerminaux.get(j2));
                     }
                 }
@@ -333,11 +310,11 @@ public class Grammaire {
 
     /**
      * methode qui renvoit true si dans la production il y a des terminaux
-     * 
+     *
      * @param s
      * @return true s'il y a des terminaux
      */
-    public boolean containsTerminaux(String s) {
+    public boolean containsTerminaux (String s) {
         boolean contains = false;
         for (int i = 0; i < terminaux.size(); i++) {
             if (s.contains(terminaux.get(i))) {
@@ -349,12 +326,12 @@ public class Grammaire {
 
     /**
      * Methode qui chercher un String dans un autre et elimine le caracter
-     * 
+     *
      * @param s
      * @param s2
      * @return
      */
-    public String reemplaceEpsilons(String s, String s2) {
+    public String reemplaceEpsilons (String s, String s2) {
 
         String temp = "";
 
@@ -408,11 +385,11 @@ public class Grammaire {
 
     /**
      * Methode qui ajoute des productions a les productions existent
-     * 
+     *
      * @param s
      * @return
      */
-    public String ajouteProd(String s, String s2) {
+    public String ajouteProd (String s, String s2) {
         List<String> l = new ArrayList<>();
         String temp = "";
         l = produtions(s);
@@ -424,12 +401,12 @@ public class Grammaire {
     /**
      * Methode qui renvoit true si un String (ou sub string) d'une Liste est
      * contenu dans une autre Liste
-     * 
+     *
      * @param s
      * @param s2
      * @return
      */
-    public boolean containsString(List<String> s, List<String> s2) {
+    public boolean containsString (List<String> s, List<String> s2) {
         boolean contains = false;
         for (int i = 0; i < s.size(); i++) {
             for (int j = 0; j < s2.size(); j++) {
@@ -444,11 +421,11 @@ public class Grammaire {
     /**
      * Methode qui recoit une Liste et supprime les duplications et renvoit un
      * String
-     * 
+     *
      * @param l
      * @return
      */
-    public String suppressionDupliProd(List<String> l) {
+    public String suppressionDupliProd (List<String> l) {
 
         String temp = " > ";
         // Creation du hashSet pour la supression des dupliqué
@@ -466,11 +443,11 @@ public class Grammaire {
 
     /**
      * methode qui renvoit true si dans la production il y a des non terminaux
-     * 
+     *
      * @param s
      * @return true s'il y a des non terminaux
      */
-    public boolean containsNonTerminaux(String s) {
+    public boolean containsNonTerminaux (String s) {
         boolean contains = false;
         for (int i = 0; i < nonTerminaux.size(); i++) {
             if (s.contains(nonTerminaux.get(i))) {
@@ -482,10 +459,10 @@ public class Grammaire {
 
     /**
      * Elimine toutes les repetitions d'un non terminal
-     * 
+     *
      * @param s
      */
-    public void supUnImprod(String s) {
+    public void supUnImprod (String s) {
         List<String> temp = new ArrayList<>();
         String t = "";
         for (int i = 0; i < productions.size(); i++) {
@@ -505,13 +482,13 @@ public class Grammaire {
         }
     }
 
-    public void setNonTerminaux(String i) {
+    public void setNonTerminaux (String i) {
         if (!nonTerminaux.contains(i)) {
             nonTerminaux.add(i);
         }
     }
 
-    public List<String> copieList(List<String> l2) {
+    public List<String> copieList (List<String> l2) {
         List<String> l = new ArrayList<>();
         for (int i = 0; i < l2.size(); i++) {
             l.add("" + l2.get(i));
@@ -519,34 +496,34 @@ public class Grammaire {
         return l;
     }
 
-    public List<String> getNonTerminaux() {
+    public List<String> getNonTerminaux () {
         return nonTerminaux;
     }
 
-    public void setTerminal(String i) {
+    public void setTerminal (String i) {
         if (!terminaux.contains(i)) {
             terminaux.add(i);
         }
     }
 
-    public void setProductions(String i, String e) {
+    public void setProductions (String i, String e) {
         if (!productions.containsValue(e)) {
             productions.put(i, e);
         }
     }
 
-    public List<String> getTerminaux() {
+    public List<String> getTerminaux () {
         return terminaux;
     }
 
-    public Map<String, String> getProcutions() {
+    public Map<String, String> getProcutions () {
         return productions;
     }
 
     /**
      * Methode pour la descomposition des differentes productions
      */
-    public List<String> produtions(String s) {
+    public List<String> produtions (String s) {
         List<String> t = new ArrayList<>();
         int pos = 1;
         int aux = s.length();
@@ -557,8 +534,7 @@ public class Grammaire {
             if (a.startsWith(" ") || a.startsWith(">")) {
                 a = "";
             }
-            if (a.contains("|") || (pos == aux - 1) || a.contains(">")
-                    && a.contains("| |")) {
+            if (a.contains("|") || (pos == aux - 1) || a.contains(">") && a.contains("| |")) {
                 // supression du dernier caractere |
                 if (a.endsWith("|")) {
                     a = a.substring(0, a.length() - 1);
@@ -581,11 +557,11 @@ public class Grammaire {
 
     /**
      * Methode qui transforme une arrayliste des String en une String
-     * 
+     *
      * @param l
      * @return String
      */
-    public String productionsString(List<String> l) {
+    public String productionsString (List<String> l) {
         String s = "> ";
 
         for (int i = 0; i < l.size(); i++) {
@@ -594,7 +570,7 @@ public class Grammaire {
         return s;
     }
 
-    public Map<String, String> suppressionProductions(List<String> l) {
+    public Map<String, String> suppressionProductions (List<String> l) {
         Map<String, String> temp = new HashMap<>();
         String prod;
         List<String> t = new ArrayList<>();
@@ -604,7 +580,7 @@ public class Grammaire {
             temp.put(l.get(i) + " ", prod);
 
         }
-        System.out.println("temp = "+temp);
+        System.out.println("temp = " + temp);
         //On efface les productions des improductives et innaccesibles
         /*for (int j = 0; j < l.size(); j++) {
             prod = productions.get(l.get(j) + " ");
@@ -625,16 +601,13 @@ public class Grammaire {
     }
 
     /**
-     * @param mot
-     *            , le mot qu'on teste pour savoir s'il appartient à la
+     * @param mot , le mot qu'on teste pour savoir s'il appartient à la
      *            grammaire
      * @return si c'est bon on peut faire le mot, ou pas.
      */
-    public boolean algorithmeCYK(String mot) {
+    public boolean algorithmeCYK (String mot) {
 
-        System.out
-                .println("=============================================CYK sur "
-                        + mot);
+        System.out.println("=============================================CYK sur " + mot);
         int tailleMot = mot.length();
         PyramideCYK pyramide = new PyramideCYK(tailleMot);
         // Liste temporaire utilisée pour clarifier le code.
@@ -644,8 +617,7 @@ public class Grammaire {
         for (int i = 0; i < tailleMot; i++) {
             // On regarde si on peut obtenir la lettre avec la grammaire == un
             // terminal égal à la lettre
-            tmp = getProductionsQuiContiennentLaVariable(mot
-                    .substring(i, i + 1));
+            tmp = getProductionsQuiContiennentLaVariable(mot.substring(i, i + 1));
 
             pyramide.addlistProductions(tmp, 0, i);
             // Vidage de tmp
@@ -656,27 +628,19 @@ public class Grammaire {
         // pyramide au fur et à mesure
         for (int numeroLigne = 1; numeroLigne < tailleMot; numeroLigne++) {
 
-            System.out
-                    .println("========================CHANGEMENT DE LIGNE - LIGNE "
-                            + numeroLigne);
+            System.out.println("========================CHANGEMENT DE LIGNE - LIGNE " + numeroLigne);
             // Parcours des cases de cette ligne
             for (int numeroCase = 0; numeroCase < tailleMot - numeroLigne; numeroCase++) {
-                System.out
-                        .println("========================CHANGEMENT DE Case - Case "
-                                + numeroCase);
+                System.out.println("========================CHANGEMENT DE Case - Case " + numeroCase);
                 // System.out.println("Numero Ligne" + numeroLigne +
                 // "Numero case : " + numeroCase );
 
                 // à chaque fois, numeroLigne cas possibles de combinaisons de
                 // cases. (sachant qu'oncommence à 0)
                 for (int i = 0; i < numeroLigne; i++) {
-                    System.out.println("Case " + (0 + i) + ","
-                            + (0 + numeroCase) + " et " + (numeroLigne - 1 - i)
-                            + "," + (tailleMot - numeroLigne));
-                    List<String> gauche = pyramide.getListProductions(0 + i,
-                            0 + numeroCase);
-                    List<String> droite = pyramide.getListProductions(
-                            numeroLigne - 1 - i, numeroCase + 1 + i);
+                    System.out.println("Case " + (0 + i) + "," + (0 + numeroCase) + " et " + (numeroLigne - 1 - i) + "," + (tailleMot - numeroLigne));
+                    List<String> gauche = pyramide.getListProductions(0 + i, 0 + numeroCase);
+                    List<String> droite = pyramide.getListProductions(numeroLigne - 1 - i, numeroCase + 1 + i);
 
                     // ici ça pue
 
@@ -687,13 +651,10 @@ public class Grammaire {
 
                             // Recherche des productions qui contiennent le non
                             // terminal
-                            tmp = getProductionsQuiContiennentLaVariable(""
-                                    .concat(gauche.get(k))
-                                    .concat(droite.get(l)));
+                            tmp = getProductionsQuiContiennentLaVariable("".concat(gauche.get(k)).concat(droite.get(l)));
                             // Ajout des productions trouvées à la case de la
                             // pyramide
-                            pyramide.addlistProductions(tmp, numeroLigne,
-                                    numeroCase);
+                            pyramide.addlistProductions(tmp, numeroLigne, numeroCase);
 
                             tmp = null;
                         }
@@ -708,15 +669,11 @@ public class Grammaire {
         System.out.println("AXIOME : " + axiome);
         System.out.print("Liste des productions de la dernière case : ");
 
-        for (int i = 0; i < pyramide.getListProductions(tailleMot - 1, 0)
-                .size(); i++) {
-            System.out.println(pyramide.getListProductions(tailleMot - 1, 0)
-                    .get(i));
+        for (int i = 0; i < pyramide.getListProductions(tailleMot - 1, 0).size(); i++) {
+            System.out.println(pyramide.getListProductions(tailleMot - 1, 0).get(i));
 
-            System.out.println("valeur comparee : "
-                    + pyramide.getListProductions(tailleMot - 1, 0).get(i));
-            if (pyramide.getListProductions(tailleMot - 1, 0).get(i)
-                    .contains(axiome)) {
+            System.out.println("valeur comparee : " + pyramide.getListProductions(tailleMot - 1, 0).get(i));
+            if (pyramide.getListProductions(tailleMot - 1, 0).get(i).contains(axiome)) {
                 return true;
             }
 
@@ -726,12 +683,11 @@ public class Grammaire {
 
     /**
      * Ajoute une règle.
-     * 
+     *
      * @param nonTerminal le symbole non-terminal de la nouvelle règle
-     * 
-     * @param production la ou les productions associées
+     * @param production  la ou les productions associées
      */
-    private void ajouterRegle(String nonTerminal, String production) {
+    private void ajouterRegle (String nonTerminal, String production) {
         if (productions.get(nonTerminal) != null) {
             ajouteProd(nonTerminal, production);
         } else {
@@ -743,7 +699,7 @@ public class Grammaire {
     /**
      * Nettoie la grammaire.
      */
-    public void nettoyer() {
+    public void nettoyer () {
         suppressionImproductifs();
         suppressionInaccesible();
     }
@@ -751,7 +707,7 @@ public class Grammaire {
     /**
      * Met la grammaire sous forme normale de Chomsky.
      */
-    public void Chomsky() {
+    public void Chomsky () {
         nettoyer();
         suppressionEpsilons();
         // TODO Fernando
@@ -763,7 +719,7 @@ public class Grammaire {
     /**
      * Crée une règle par terminal et les remplace dans les autres règles.
      */
-    private void traiterTerminauxChomsky() {
+    private void traiterTerminauxChomsky () {
         Set<String> keys = productions.keySet();
         Iterator<String> it = keys.iterator();
         String key, prod;
@@ -787,7 +743,7 @@ public class Grammaire {
     /**
      * Traite les règles pour les mettre sous FNC.
      */
-    private void traiterReglesChomsky() {
+    private void traiterReglesChomsky () {
         Map<String, String> temp = mapCopy(productions);
         Set<String> keys = temp.keySet();
         Iterator<String> it = keys.iterator();
@@ -801,14 +757,15 @@ public class Grammaire {
             l = produtions(productions.get(key)).size() - 1;
             for (String prod : produtions(productions.get(key))) {
                 if (charOccur(prod, ' ') > 2) {
-                    if (i == 0 && i == l)
+                    if (i == 0 && i == l) {
                         traiterRegleChomsky(prod, key, "" + nonTerminal, 1, 0);
-                    else if (i == 0)
+                    } else if (i == 0) {
                         traiterRegleChomsky(prod, key, "" + nonTerminal, 1, 1);
-                    else if (i == l)
+                    } else if (i == l) {
                         traiterRegleChomsky(prod, key, "" + nonTerminal, 1, 2);
-                    else
+                    } else {
                         traiterRegleChomsky(prod, key, "" + nonTerminal, 1, 3);
+                    }
                     nonTerminal++;
                 }
                 i++;
@@ -816,11 +773,9 @@ public class Grammaire {
         }
     }
 
-    private ArrayList<String> getProductionsQuiContiennentLaVariable(
-            String variable) {
+    private ArrayList<String> getProductionsQuiContiennentLaVariable (String variable) {
         ArrayList<String> retour = new ArrayList<>();
-        System.out.println("parcours des productions qui contiennent "
-                + variable);
+        System.out.println("parcours des productions qui contiennent " + variable);
 
         Set<String> keys = productions.keySet();
         Iterator<String> it = keys.iterator();
@@ -852,7 +807,7 @@ public class Grammaire {
 
     }
 
-    public void formeNormaleGreibach() {
+    public void formeNormaleGreibach () {
         // Sans renommage
         // Sans E-production
 
@@ -860,20 +815,31 @@ public class Grammaire {
 
         Set<String> keys = productions.keySet();
         Iterator<String> it = keys.iterator();
-        String key;
+        String key; // Correspond au symbole non terminal.
 
+        // 1er parcours des productions.
         while (it.hasNext()) {
-            key = it.next();
+            key = it.next(); // On récupère le symbole non terminal.
+            String prod = productions.get(key); // On récupère la production associée au symbole non terminal.
 
-            // Parcours des productions
-            for (String prod : produtions(productions.get(key))) {
-                // Pour chaque production, on regarde s'il y a des recursivités
-                // gauches et on les enlève
-
+            // On regarde si la production est montante.
+            if (!estMontante(key, prod)) {
+                // Si la production n'est pas montante, on fait en sorte qu'elle le soit.
+                montante(key, prod);
             }
+
+            // Puis on supprime la récursivité gauche.
+            supRecursiviteGauche(prod);
         }
+
+        // 2eme parcours des productions.
+        for (int i = productions.size() - 1; i >= 1; i--) {
+            // Maintenant on substitue les productions plus élevées dans les productions plus faibles
+            substitution();
+        }
+
     }
-        // Puis ensuite on fait commencer toute règle par un terminal
+    // Puis ensuite on fait commencer toute règle par un terminal
 
     /**
      * Mets la grammaire sous forme normale de Greibach.
@@ -893,11 +859,11 @@ public class Grammaire {
     /**
      * Dit si la règle passée en paramètre est montante.
      *
-     * @param nonTerminal le sumbole non-terminal de la règle
-     * @param prod la production correspondante
+     * @param nonTerminal le symbole non-terminal de la règle.
+     * @param prod        la production correspondante.
      * @return true si la règle est montante, faux sinon
      */
-    private boolean estMontante(String nonTerminal, String prod) {
+    private boolean estMontante (String nonTerminal, String prod) {
         // TODO
         return false;
     }
@@ -906,7 +872,7 @@ public class Grammaire {
      * Supprime toutes les recursivités gauches Pré-requis : doit être au bon
      * format pour retirer (sans renommage ni e-production)
      */
-    public void supRecursiviteGauche() {
+    public void supRecursiviteGauche () {
 
         // Création d'une copie temporaire des productions où on construit notre
         // nouvelle grammaire
@@ -956,28 +922,20 @@ public class Grammaire {
             for (int i = 0; i < variablesDeLaProduction.length; i++) {
                 // Si elle finit par un terminal : forme Aa (deux caracteres et
                 // le dernier caractère appartient aux terminaux
-                if (variablesDeLaProduction[i].length() == 2
-                        && terminaux.contains(variablesDeLaProduction[i]
-                                .substring(1))) {
-                    System.out.println("Recursivité gauche : "
-                            + variablesDeLaProduction[i]);
-                    recursivitesGauchesDeLaProduction
-                            .add(variablesDeLaProduction[i]);
+                if (variablesDeLaProduction[i].length() == 2 && terminaux.contains(variablesDeLaProduction[i].substring(1))) {
+                    System.out.println("Recursivité gauche : " + variablesDeLaProduction[i]);
+                    recursivitesGauchesDeLaProduction.add(variablesDeLaProduction[i]);
                 }
                 // Sinon si c'est un terminal
                 else if (terminaux.contains(variablesDeLaProduction[i])) {
-                    System.out.println("Terminal : "
-                            + variablesDeLaProduction[i]);
+                    System.out.println("Terminal : " + variablesDeLaProduction[i]);
                     terminauxDeLaProduction.add(variablesDeLaProduction[i]);
                 }
                 // S'il y a d'autres types, alors la grammaire n'était pas prête
                 // à subir l'algorithme de suppression
                 // De la récursivité gauche
                 else {
-                    System.out
-                            .println("ERREUR : Recursivité gauche : echec d'identification d'un élément"
-                                    + " de la grammaire. forme incorrecte : ->"
-                                    + variablesDeLaProduction[i] + " <-");
+                    System.out.println("ERREUR : Recursivité gauche : echec d'identification d'un élément" + " de la grammaire. forme incorrecte : ->" + variablesDeLaProduction[i] + " <-");
                     return;
                 }
             }
@@ -994,12 +952,12 @@ public class Grammaire {
                 // A -> b.A' | b1A' | ...
                 // En utilisant regle1 comme intermediaire
                 for (int i = 0; i < terminauxDeLaProduction.size(); i++) {
-                    regle1 += (terminauxDeLaProduction.get(i)
-                            + key.replaceAll(" ", "") + "'");
+                    regle1 += (terminauxDeLaProduction.get(i) + key.replaceAll(" ", "") + "'");
 
                     // Ajout d'un séparateur, sauf pour le dernier cas
-                    if (i < terminauxDeLaProduction.size() - 1)
+                    if (i < terminauxDeLaProduction.size() - 1) {
                         regle1 += " | ";
+                    }
                 }
 
                 System.out.println("REGLE 1 : " + keyregle1 + "__" + regle1);
@@ -1007,17 +965,17 @@ public class Grammaire {
                 // A' -> epsilon | aA' | a2A'
                 regle2 += "ε" + " | "; // Ajout du epsilon
                 for (int i = 0; i < recursivitesGauchesDeLaProduction.size(); i++) {
-                    regle2 += (recursivitesGauchesDeLaProduction.get(i)
-                            .substring(1) + key.replaceAll(" ", "") + "'");
+                    regle2 += (recursivitesGauchesDeLaProduction.get(i).substring(1) + key.replaceAll(" ", "") + "'");
 
                     // Ajout d'un séparateur, sauf pour le dernier cas
-                    if (i <= recursivitesGauchesDeLaProduction.size() - 2)
+                    if (i <= recursivitesGauchesDeLaProduction.size() - 2) {
                         regle2 += " | ";
+                    }
                 }
                 System.out.println("REGLE 2 : " + keyregle2 + "__" + regle2);
                 // Enfin, ajout des règles dans la hashmap temporaire.
                 tmpProductions.remove(key); // Suppression de l'ancienne règle,
-                                            // si présente.
+                // si présente.
                 keyregle1 = key.replaceAll(" ", "");
                 tmpProductions.put(keyregle1, regle1);
 
@@ -1064,22 +1022,16 @@ public class Grammaire {
 
     /**
      * Traite récursivement une règle pour la mettre sous FNC.
-     * 
-     * @param prod
-     *            la production à traiter
-     * @param nonTerminal1
-     *            le symbole non-terminal correspondant à la règle
-     * @param nonTerminal2
-     *            le symbole non-terminal des règles engendrées par le
-     *            traitement
-     * @param cnt
-     *            numéro de la prochaine règle à créer
-     * @param cas
-     *            numéro correspondant au cas relatif à la position de la
-     *            production dans la règle
+     *
+     * @param prod         la production à traiter
+     * @param nonTerminal1 le symbole non-terminal correspondant à la règle
+     * @param nonTerminal2 le symbole non-terminal des règles engendrées par le
+     *                     traitement
+     * @param cnt          numéro de la prochaine règle à créer
+     * @param cas          numéro correspondant au cas relatif à la position de la
+     *                     production dans la règle
      */
-    private void traiterRegleChomsky(String prod, String nonTerminal1,
-            String nonTerminal2, int cnt, int cas) {
+    private void traiterRegleChomsky (String prod, String nonTerminal1, String nonTerminal2, int cnt, int cas) {
         String newProd, oldProd;
 
         if (charOccur(prod, ' ') > 2) {
@@ -1089,37 +1041,31 @@ public class Grammaire {
             oldProd = prod.substring(0, i);
             oldProd += " " + nonTerminal2 + cnt + " ";
             newProd = prod.substring(i + 1, prod.length()) + " ";
-            if (cas == 0)
-                productions.put(nonTerminal1, productions.get(nonTerminal1)
-                        .replaceAll(prod, oldProd));
-            if (cas == 1)
-                productions.put(nonTerminal1, productions.get(nonTerminal1)
-                        .replaceAll(prod + "\\s\\x7C", oldProd + "|"));
-            if (cas == 3)
-                productions.put(
-                        nonTerminal1,
-                        productions.get(nonTerminal1).replaceAll(
-                                "\\x7C\\s" + prod + "\\s\\x7C",
-                                "| " + oldProd + "|"));
-            if (cas == 2)
-                productions.put(nonTerminal1, productions.get(nonTerminal1)
-                        .replaceAll("\\x7C\\s" + prod + "\\z", "| " + oldProd));
+            if (cas == 0) {
+                productions.put(nonTerminal1, productions.get(nonTerminal1).replaceAll(prod, oldProd));
+            }
+            if (cas == 1) {
+                productions.put(nonTerminal1, productions.get(nonTerminal1).replaceAll(prod + "\\s\\x7C", oldProd + "|"));
+            }
+            if (cas == 3) {
+                productions.put(nonTerminal1, productions.get(nonTerminal1).replaceAll("\\x7C\\s" + prod + "\\s\\x7C", "| " + oldProd + "|"));
+            }
+            if (cas == 2) {
+                productions.put(nonTerminal1, productions.get(nonTerminal1).replaceAll("\\x7C\\s" + prod + "\\z", "| " + oldProd));
+            }
             ajouterRegle(nonTerminal2 + cnt + " ", " > " + newProd);
-            traiterRegleChomsky(newProd, nonTerminal2 + cnt + " ",
-                    nonTerminal2, cnt + 1, 0);
+            traiterRegleChomsky(newProd, nonTerminal2 + cnt + " ", nonTerminal2, cnt + 1, 0);
         }
     }
 
     /**
      * Calcule le nombre d'occurences d'un caractère dans une chaîne.
-     * 
-     * @param str
-     *            la chaîne dans laquelle chercher le caractère
-     * @param c
-     *            le caractère à rechercher
+     *
+     * @param str la chaîne dans laquelle chercher le caractère
+     * @param c   le caractère à rechercher
      * @return le nombre d'occurences
      */
-    private static int charOccur(String str, char c) {
+    private static int charOccur (String str, char c) {
         int i = -1, cnt = 0;
 
         while ((i = str.indexOf(c, i + 1)) != -1) {
@@ -1130,16 +1076,13 @@ public class Grammaire {
 
     /**
      * Calcule l'index d'un n-ième caractère répété dans une chaîne.
-     * 
-     * @param str
-     *            la chaîne dans laquelle chercher le caractère
-     * @param c
-     *            le caractère à rechercher
-     * @param n
-     *            la n-ième appartition du caractère à rechercher
+     *
+     * @param str la chaîne dans laquelle chercher le caractère
+     * @param c   le caractère à rechercher
+     * @param n   la n-ième appartition du caractère à rechercher
      * @return l'index
      */
-    private static int nCharIndex(String str, char c, int n) {
+    private static int nCharIndex (String str, char c, int n) {
         int i = -1, cnt = 0;
 
         while ((i = str.indexOf(c, i + 1)) != -1 && cnt < n) {
@@ -1150,12 +1093,11 @@ public class Grammaire {
 
     /**
      * Copie une HashMap<String, String>.
-     * 
-     * @param src
-     *            la map à copier
+     *
+     * @param src la map à copier
      * @return la copie
      */
-    private static HashMap<String, String> mapCopy(Map<String, String> src) {
+    private static HashMap<String, String> mapCopy (Map<String, String> src) {
         HashMap<String, String> copy = new HashMap<String, String>();
         Set<String> keys = src.keySet();
         Iterator<String> it = keys.iterator();
@@ -1169,7 +1111,7 @@ public class Grammaire {
         return copy;
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main (String[] args) throws IOException {
         Lecture lp = new Lecture();
         // Ecriture ec = new Ecriture();
         lp.lecture();
@@ -1177,7 +1119,7 @@ public class Grammaire {
 
         // System.out.println(g.algorithmeCYK("aabbab"));
 
-       // g.supRecursiviteGauche();
+        // g.supRecursiviteGauche();
 
         System.out.println(g.productions);
         // System.out.println(g.nonTerminaux);
