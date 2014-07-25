@@ -157,7 +157,9 @@ public class Grammaire {
         }
         // et pour finir on copie les productifs dans l'arraylist des non
         // terminaux
-        nonTerminaux = copieList(p2);
+        nonTerminaux = p2;
+        System.out.println(nonTerminaux);
+        productions = suppressionProductions(nonTerminaux);
     }
 
     /**
@@ -606,12 +608,13 @@ public class Grammaire {
         // On charge les producitons des non terminaux qui sont productives et
         // accesibles
         Set<String> keys = productions.keySet();
+        System.out.println("prod = "+productions);
         Iterator<String> it = keys.iterator();
         String key;
-        while (it.hasNext()) {
-            key = it.next();
-            if (!nonTerminaux.contains(key.substring(0, key.length() - 1))) {
-                productions.remove(key);
+        for (int i = 0; i < nonTerminaux.size(); i++) {
+            prod = productions.get(nonTerminaux.get(i)+ " ");
+            if (!nonTerminaux.contains(prod)) {
+                productions.remove(nonTerminaux.get(i));
             }
         }
         System.out.println(nonTerminaux);
@@ -636,13 +639,12 @@ public class Grammaire {
                 t2.addAll(tp);
                 tp.clear();
             }
-            
+
             temp.put(nonTerminaux.get(i) + " ", productionsString(t2));
             System.out.println(t2);
             t2.clear();
         }
         System.out.println(temp);
-        
 
         return temp;
     }
@@ -1226,11 +1228,13 @@ public class Grammaire {
 
         // System.out.println(g.nonTerminaux);
         g.suppressionImproductifs();
-        // g.suppressionProductions(g.nonTerminaux);
-        // System.out.println(g.productions);
-        // System.out.println(g.nonTerminaux);
+        g.suppressionInaccesible();
+        System.out.println("dsdds" + g.nonTerminaux);
         g.suppressionProductions(g.nonTerminaux);
-        // System.out.println(g);
+        // System.out.println(g.productions);
+      //  System.out.println("dsdds" + g.nonTerminaux);
+        // g.suppressionProductions(g.nonTerminaux);
+        System.out.println(g);
 
     }
 }

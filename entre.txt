@@ -1,4 +1,6 @@
 S > a b | a A b | A | B | A B | a
 A > A | A A | A B | B | A A B 
-B > B | C | A C | b | E
+B > B | C | A C | b | F
 C > a b a 
+F > F a
+V > d a
