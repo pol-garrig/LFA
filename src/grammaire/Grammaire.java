@@ -604,8 +604,9 @@ public class Grammaire {
             temp.put(l.get(i) + " ", prod);
 
         }
+        System.out.println("temp = "+temp);
         //On efface les productions des improductives et innaccesibles
-        for (int j = 0; j < l.size(); j++) {
+        /*for (int j = 0; j < l.size(); j++) {
             prod = productions.get(l.get(j) + " ");
             t = produtions(prod);
             System.out.println(t);
@@ -616,7 +617,7 @@ public class Grammaire {
                     t.remove(l.get(j));
                 }
             }
-        }
+        }*/
         System.out.println(t);
         System.out.println("temp = " + temp);
         // productions = temp;
