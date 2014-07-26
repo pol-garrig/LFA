@@ -65,7 +65,7 @@ public class Grammaire {
                 }
             }
 
-            // On regarde les
+            // On regarde les non terminaux ou je peux arriver
             while (t != nonTerminaux.size() - 1) {
                 if (temp.size() > t) {
                     prod = productions.get(temp.get(t) + " ");
@@ -101,6 +101,7 @@ public class Grammaire {
         List<String> p = new ArrayList<>();
         // fin indique quand il faut s'arreter
         boolean fin = false;
+        String prod;
 
         // je regarde s'il y a des productions pour tous les nonTerminaux, et je
         // mets a chaque fois les non terminaux avec producitons dans p
@@ -111,6 +112,7 @@ public class Grammaire {
                 p.add(nonTerminaux.get(g));
             }
         }
+        System.out.println("p = " + p);
         // je regarde tous les productions de chaque non Terminaux et cherche
         // les p1 et je les garde dans la liste p1
         for (int i = 0; i < p.size(); i++) {
@@ -131,23 +133,35 @@ public class Grammaire {
             }
 
         }
-
+        System.out.println("p1 = " + p1);
         // On regarde p2
         while (!fin) {
             // on copie les non terminaux vers p2
             p2 = copieList(p1);
             // on cherche les elementes des p2
             for (int i = 0; i < p.size(); i++) {
-                for (int j = 0; j < p1.size(); j++) {
-                    // si avec un production on arrive a un elemente de p1
-                    // on le garde dans p2
-                    if (p.get(i).contains(p1.get(j)) && !p2.contains(p.get(i))) {
-                        p2.add(p.get(i));
+                // si avec un production on arrive a un elemente de p1
+                // on le garde dans p2
+                temp = produtions(productions.get(p.get(i) + " "));
+
+                for (int j2 = 0; j2 < temp.size(); j2++) {
+                    for (int j = 0; j < p1.size(); j++) {
+                        if (temp.get(j2).contains(p1.get(j))
+                                && (temp.get(j2).length() < 3)) {
+                            p2.add(p.get(i));
+                        }
+                        for (int j3 = 0; j3 < terminaux.size(); j3++) {
+                            if (temp.get(j2).contains(terminaux.get(j3))
+                                    && temp.get(j2).contains(p1.get(j))) {
+                                p2.add(p.get(i));
+                            }
+                        }
                     }
                 }
             }
+            suppressionDupliProd(p1);
             // on regarde si p1 et p2 sont egaux
-            if (p1.equals(p2)) {
+            if (p2.containsAll(p1)) {
                 // si sont egaux on fini
                 fin = true;
             } else {
@@ -157,8 +171,8 @@ public class Grammaire {
         }
         // et pour finir on copie les productifs dans l'arraylist des non
         // terminaux
+        System.out.println(p2);
         nonTerminaux = p2;
-        System.out.println(nonTerminaux);
         productions = suppressionProductions(nonTerminaux);
     }
 
@@ -246,58 +260,166 @@ public class Grammaire {
     }
 
     public void suppressionRenomage() {
-        Map<String, List<String>> ren = new HashMap<>();
-        List<String> r = new ArrayList<>();
-        List<String> t = new ArrayList<>();
-        List<String> te = new ArrayList<>();
+        Map<String, List<String>> ren1 = new HashMap<>();
+        Map<String, String> ren2 = new HashMap<>();
+        List<String> d = new ArrayList<>();
+        // on cherche les non terminaux qu'on peut renomme
+        ren1 = ren(productions);
+        // On reemplace les non terminaux qu'on peut renomme
+        ren2 = reemplaceRen(ren1);
+        // On supprime les identiques
+        productions = suppresionIdentiques(ren2);
 
-        String temp = "";
-        // On cherche ren0 ,ren1 ,etc ..
-        System.out.println();
-        for (int i = 0; i < productions.size(); i++) {
-            for (int j = 0; j < nonTerminaux.size(); j++) {
-                System.out.println("prod = "
-                        + productions.get(nonTerminaux.get(i) + " "));
-                System.out.println("nonter = " + nonTerminaux.get(j));
+    }
 
-                if (productions.get(nonTerminaux.get(i) + " ") != null
-                        && productions.get(nonTerminaux.get(i) + " ").contains(
-                                nonTerminaux.get(j))) {
-                    if (!r.contains(nonTerminaux.get(i))) {
-                        r.add(nonTerminaux.get(i));
+    /**
+     * Methode qui renvoit un map son objet identiques
+     * 
+     * @param m
+     * @return
+     */
+    public Map<String, String> suppresionIdentiques(Map<String, String> m) {
+        Map<String, String> i = new HashMap<>();
+        List<String> d = new ArrayList<>();
+        String prod1, prod2,prod3, t;
+        for (int j = 0; j < nonTerminaux.size(); j++) {
+            prod1 = m.get(nonTerminaux.get(j) + " ");
+            for (int j2 = 0; j2 < nonTerminaux.size(); j2++) {
+                prod2 = m.get(nonTerminaux.get(j2) + " ");
+                if (prod1 != null && prod1.equals(prod2)
+                        && !nonTerminaux.get(j).equals(nonTerminaux.get(j2))) {
+
+                    m.remove(nonTerminaux.get(j2) + " ");
+                    nonTerminaux.remove(j2);
+                    for (int k = 0; k < nonTerminaux.size(); k++) {
+                        System.out.println(m);
+                        prod3 = m.get(nonTerminaux.get(j) + " ");
+                       System.out.println(prod3);
+                    
+                    t = suppressionDupliProd(produtions(prod2.replaceAll(
+                            nonTerminaux.get(j2), nonTerminaux.get(j))));
+                   
+                    m.put(nonTerminaux.get(j) + " ", t);
+                    }//TODO                    
+                    i = m;
+                }
+            }
+        }
+      
+        return i;
+    }
+
+    /**
+     * 
+     * @param ren
+     * @return
+     */
+    public Map<String, String> reemplaceRen(Map<String, List<String>> ren) {
+        Map<String, String> temp = new HashMap<>();
+        List<String> d = new ArrayList<>();
+        List<String> d2 = new ArrayList<>();
+
+        String prod;
+        String prod2 = "";
+        // on elimine A > A
+        for (int i = 0; i < nonTerminaux.size(); i++) {
+            d = produtions(productions.get(nonTerminaux.get(i) + " "));
+            for (int j = 0; j < d.size(); j++) {
+                for (int j2 = 0; j2 < nonTerminaux.size(); j2++) {
+
+                    if (d.get(j).contains(nonTerminaux.get(j2))
+                            && d.get(j).length() < 3) {
+                        d2.add(d.get(j));
                     }
-                    if (!r.contains(nonTerminaux.get(j))) {
-                        r.add(nonTerminaux.get(j));
-                    }
-                    t = copieList(r);
-                    ren.remove(nonTerminaux.get(i) + " ");
-                    ren.put(nonTerminaux.get(i) + " ", t);
-                } else {
-                    if (!r.contains(nonTerminaux.get(i))) {
-                        r.add(nonTerminaux.get(i));
-                    }
-                    t = copieList(r);
-                    ren.remove(nonTerminaux.get(i) + " ");
-                    ren.put(nonTerminaux.get(i) + " ", t);
                 }
             }
 
+            d.removeAll(d2);
+            productions.put(nonTerminaux.get(i) + " ", productionsString(d));
+            d2.clear();
+        }// On reemplace les renomage
+        for (int i = 0; i < nonTerminaux.size(); i++) {
+            d = ren.get(nonTerminaux.get(i) + " ");
+            prod = productions.get(nonTerminaux.get(i) + " ");
+
+            for (int j = 0; j < d.size(); j++) {
+                prod2 = ajouteProd(prod, productions.get(d.get(j)));
+                prod = prod2;
+            }
+
+            temp.put(nonTerminaux.get(i) + " ", prod);
+        }
+        return temp;
+    }
+
+    /**
+     * renvoit un maps avec la liste des non terminaux peut etre renommee
+     * 
+     * @param m
+     * @return
+     */
+    public Map<String, List<String>> ren(Map<String, String> m) {
+        Map<String, List<String>> ren1 = new HashMap<>();
+        List<String> r = new ArrayList<>();
+        List<String> temp = new ArrayList<>();
+        String prod;
+        List<String> te = new ArrayList<>();
+        Set<String> s = new HashSet<>();
+        int e = 0, f = 0;
+
+        // On cherche ren1 ,etc ..
+        for (int j = 0; j < nonTerminaux.size(); j++) {
+            s.clear();
+
+            te = produtions(productions.get(nonTerminaux.get(j) + " "));
+
+            // ren 0 On ajoute la meme variable S > S
+
+            s.add(nonTerminaux.get(j) + " ");
+            for (int i2 = 0; i2 < te.size(); i2++) {
+
+                for (int i = 0; i < nonTerminaux.size(); i++) {
+                    // On regarde s'il y a seulement un non terminaux
+                    if (te.get(i2).contains(nonTerminaux.get(i))) {
+                        e++;
+                    }
+                }
+                // On regarde s'il y a des terminaux
+                for (int i = 0; i < terminaux.size(); i++) {
+                    if (te.get(i2).contains(terminaux.get(i))) {
+                        f++;
+                    }
+                }
+                // s'il y a un non terminal et il n'y a pas des terminaux on
+                // ajoute la prod a p0
+                if (e == 1 && f == 0 && (te.get(i2).length() < 3)) {
+                    s.add(te.get(i2));
+                }
+                e = f = 0;
+
+            }
+
+            r.addAll(s);
+
+            temp = copieList(r);
+            ren1.put(nonTerminaux.get(j) + " ", temp);
             r.clear();
         }
-        System.out.println(ren);
-        // On cherche les Rem 2 ,3 ...
-        for (int i = 0; i < ren.size(); i++) {
-            t = ren.get(nonTerminaux.get(i) + " ");
-            for (int j = 0; j < t.size(); j++) {
-                te = ren.get(t.get(j) + " ");
-                if (!t.containsAll(te)) {
-                    t.addAll(te);
-                    suppressionDupliProd(t);
+        for (int i = 0; i < nonTerminaux.size(); i++) {
+            s.clear();
+            // On cherche ren 1 et 2 jusqu'a ren1 = ren2
+            while (!r.containsAll(temp)) {
+                r = ren1.get(nonTerminaux.get(i) + " ");
+                for (int j = 0; j < r.size(); j++) {
+                    s.addAll(ren1.get(r.get(j)));
                 }
-            }
-        }
-        System.out.println(ren);
 
+                temp = setVersList(s);
+                ren1.put(nonTerminaux.get(i) + " ", temp);
+            }
+            r.clear();
+        }
+        return ren1;
     }
 
     /**
@@ -442,6 +564,12 @@ public class Grammaire {
             }
         }
         return contains;
+    }
+
+    public List<String> setVersList(Set<String> s) {
+        List<String> l = new ArrayList<String>();
+        l.addAll(s);
+        return l;
     }
 
     /**
@@ -607,12 +735,10 @@ public class Grammaire {
         int e = 0;
         // On charge les producitons des non terminaux qui sont productives et
         // accesibles
-        Set<String> keys = productions.keySet();
-        System.out.println("prod = "+productions);
-        Iterator<String> it = keys.iterator();
-        String key;
+        // System.out.println("prod = "+productions);
+
         for (int i = 0; i < nonTerminaux.size(); i++) {
-            prod = productions.get(nonTerminaux.get(i)+ " ");
+            prod = productions.get(nonTerminaux.get(i) + " ");
             if (!nonTerminaux.contains(prod)) {
                 productions.remove(nonTerminaux.get(i));
             }
@@ -620,17 +746,17 @@ public class Grammaire {
         System.out.println(nonTerminaux);
         for (int i = 0; i < nonTerminaux.size(); i++) {
             t = produtions(productions.get(nonTerminaux.get(i) + " "));
-            System.out.println("t >>>>>>>>>>>>>>>>>>>>>" + t);
+            // System.out.println("t >>>>>>>>>>>>>>>>>>>>>" + t);
             for (int j = 0; j < t.size(); j++) {
                 // System.out.println(t.get(j));
                 String[] f = t.get(j).split(" ");
-                System.out.println("================");
+                // System.out.println("================");
                 for (int k = 0; k < f.length; k++) {
                     if (nonTerminaux.contains(f[k]) || terminaux.contains(f[k])) {
                         e++;
 
                     }
-                    System.out.println(e);
+                    // System.out.println(e);
                     if (e == f.length) {
                         tp.add(t.get(j));
                     }
@@ -641,10 +767,10 @@ public class Grammaire {
             }
 
             temp.put(nonTerminaux.get(i) + " ", productionsString(t2));
-            System.out.println(t2);
+            // System.out.println(t2);
             t2.clear();
         }
-        System.out.println(temp);
+        // System.out.println(temp);
 
         return temp;
     }
@@ -1221,18 +1347,17 @@ public class Grammaire {
         // Ecriture ec = new Ecriture();
         lp.lecture();
         Grammaire g = lp.getGrammaire();
-
         // System.out.println(g.algorithmeCYK("aabbab"));
-
         // g.supRecursiviteGauche();
-
         // System.out.println(g.nonTerminaux);
-        g.suppressionImproductifs();
-        g.suppressionInaccesible();
-        System.out.println("dsdds" + g.nonTerminaux);
-        g.suppressionProductions(g.nonTerminaux);
+        // g.suppressionImproductifs();
+        // g.suppressionInaccesible();
+        // / System.out.println("dsdds" + g.nonTerminaux);
+
+        g.suppressionRenomage();
+        // g.suppressionProductions(g.nonTerminaux);
         // System.out.println(g.productions);
-      //  System.out.println("dsdds" + g.nonTerminaux);
+        // System.out.println("dsdds" + g.nonTerminaux);
         // g.suppressionProductions(g.nonTerminaux);
         System.out.println(g);
 
