@@ -800,9 +800,6 @@ public class Grammaire {
      */
     public boolean algorithmeCYK(String mot) {
 
-        System.out
-                .println("=============================================CYK sur "
-                        + mot);
         int tailleMot = mot.length();
         PyramideCYK pyramide = new PyramideCYK(tailleMot);
         // Liste temporaire utilisée pour clarifier le code.
@@ -823,24 +820,12 @@ public class Grammaire {
         // Parcours des AUTRES lignes de la pyramide, et completion de la
         // pyramide au fur et à mesure
         for (int numeroLigne = 1; numeroLigne < tailleMot; numeroLigne++) {
-
-            System.out
-                    .println("========================CHANGEMENT DE LIGNE - LIGNE "
-                            + numeroLigne);
             // Parcours des cases de cette ligne
             for (int numeroCase = 0; numeroCase < tailleMot - numeroLigne; numeroCase++) {
-                System.out
-                        .println("========================CHANGEMENT DE Case - Case "
-                                + numeroCase);
-                // System.out.println("Numero Ligne" + numeroLigne +
-                // "Numero case : " + numeroCase );
-
                 // à chaque fois, numeroLigne cas possibles de combinaisons de
                 // cases. (sachant qu'oncommence à 0)
                 for (int i = 0; i < numeroLigne; i++) {
-                    System.out.println("Case " + (0 + i) + ","
-                            + (0 + numeroCase) + " et " + (numeroLigne - 1 - i)
-                            + "," + (tailleMot - numeroLigne));
+                   
                     List<String> gauche = pyramide.getListProductions(0 + i,
                             0 + numeroCase);
                     List<String> droite = pyramide.getListProductions(
@@ -870,17 +855,8 @@ public class Grammaire {
             }
         }
 
-        System.out.println(pyramide);
-        System.out.println("AXIOME : " + axiome);
-        System.out.print("Liste des productions de la dernière case : ");
-
         for (int i = 0; i < pyramide.getListProductions(tailleMot - 1, 0)
                 .size(); i++) {
-            System.out.println(pyramide.getListProductions(tailleMot - 1, 0)
-                    .get(i));
-
-            System.out.println("valeur comparee : "
-                    + pyramide.getListProductions(tailleMot - 1, 0).get(i));
             if (pyramide.getListProductions(tailleMot - 1, 0).get(i)
                     .contains(axiome)) {
                 return true;
@@ -994,36 +970,24 @@ public class Grammaire {
     private ArrayList<String> getProductionsQuiContiennentLaVariable(
             String variable) {
         ArrayList<String> retour = new ArrayList<>();
-        System.out.println("parcours des productions qui contiennent "
-                + variable);
-
         Set<String> keys = productions.keySet();
         Iterator<String> it = keys.iterator();
         String key;
 
         while (it.hasNext()) {
             key = it.next();
-            System.out.print(key + "-");
             // Parcours des productions
             for (String prod : produtions(productions.get(key).replaceAll(" ",
                     ""))) {
 
                 if (prod.contains(variable) && !retour.contains(variable)) {
-                    System.out.print("->BONNE!");
                     String result = key.replaceAll(" ", "");
                     retour.add(result);
 
                     break; // Sortie forcée du for
                 }
             }
-            System.out.println();
         }
-
-        System.out.print("Liste des productions bonnes :");
-        for (int i = 0; i < retour.size(); i++) {
-            System.out.print(retour.get(i) + " ");
-        }
-        System.out.println("\nfin de parcours");
         return retour;
 
     }
@@ -1163,23 +1127,18 @@ public class Grammaire {
             for (int i = 0; i < variablesDeLaProduction.length; i++) {
                 // Si elle finit par un terminal : forme Aa (deux caracteres et
                 // le dernier caractère appartient aux terminaux
-                if (variablesDeLaProduction[i].length() == 2
-                        && terminaux.contains(variablesDeLaProduction[i]
-                                .substring(1))) {
+                if (variablesDeLaProduction[i].length() == 2) {
                     System.out.println("Recursivité gauche : "
                             + variablesDeLaProduction[i]);
                     recursivitesGauchesDeLaProduction
                             .add(variablesDeLaProduction[i]);
                 }
                 // Sinon si c'est un terminal
-                else if (terminaux.contains(variablesDeLaProduction[i])) {
-                    System.out.println("Terminal : "
-                            + variablesDeLaProduction[i]);
+                else if (variablesDeLaProduction[i].length() == 1){
                     terminauxDeLaProduction.add(variablesDeLaProduction[i]);
                 }
                 // S'il y a d'autres types, alors la grammaire n'était pas prête
-                // à subir l'algorithme de suppression
-                // De la récursivité gauche
+                // à subir l'algorithme de suppression de la récursivité gauche
                 else {
                     System.out
                             .println("ERREUR : Recursivité gauche : echec d'identification d'un élément"
