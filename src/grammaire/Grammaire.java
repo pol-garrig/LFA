@@ -1102,30 +1102,16 @@ public class Grammaire {
 
         while (it.hasNext()) {
             key = it.next();
-
-            System.out.println("===========================Production " + key);
             // Parcours des productions
             // for (String prod : produtions(productions.get(key)))
             // {
             tmpProduction = productions.get(key);
-            System.out.println("Production : " + tmpProduction);
-
             // On supprime les éventuels espaces indésirables dû à la lecture de
             // la grammaire, ou fleches
             tmpProduction = tmpProduction.replaceAll(">", "");
             tmpProduction = tmpProduction.replaceAll(" ", "");
-
-            System.out.println("Production : " + tmpProduction);
-
             // On sépare chaque variable. et on les stocke dans un tableau
             variablesDeLaProduction = tmpProduction.split("\\|");
-
-            System.out.println("Splitté");
-            for (int i = 0; i < variablesDeLaProduction.length; i++) {
-                System.out.print(variablesDeLaProduction[i] + "-");
-            }
-            System.out.println();
-
             // Pour chaque variable on regarde si elle finit par un terminal, ou
             // si elle est un terminal.
             // On sépare ces deux types afin de reformer la grammaire :
@@ -1133,8 +1119,6 @@ public class Grammaire {
                 // Si elle finit par un terminal : forme Aa (deux caracteres et
                 // le dernier caractère appartient aux terminaux
                 if (variablesDeLaProduction[i].length() == 2) {
-                    System.out.println("Recursivité gauche : "
-                            + variablesDeLaProduction[i]);
                     recursivitesGauchesDeLaProduction
                             .add(variablesDeLaProduction[i]);
                 }
@@ -1155,7 +1139,6 @@ public class Grammaire {
 
             // S'il y a des recursivités gauches à retirer
             if (!recursivitesGauchesDeLaProduction.isEmpty()) {
-                System.out.println("Ajout à la nouvelle production");
                 // On dispose maintenant de deux listes qui séparent les
                 // éléments à séparer.
                 // A -> Aa1 | Aa2 | ... | b1 | b2 | ...
@@ -1172,9 +1155,6 @@ public class Grammaire {
                     if (i < terminauxDeLaProduction.size() - 1)
                         regle1 += " | ";
                 }
-
-                System.out.println("REGLE 1 : " + keyregle1 + "__" + regle1);
-
                 // A' -> epsilon | aA' | a2A'
                 regle2 += "ε" + " | "; // Ajout du epsilon
                 for (int i = 0; i < recursivitesGauchesDeLaProduction.size(); i++) {
@@ -1185,7 +1165,6 @@ public class Grammaire {
                     if (i <= recursivitesGauchesDeLaProduction.size() - 2)
                         regle2 += " | ";
                 }
-                System.out.println("REGLE 2 : " + keyregle2 + "__" + regle2);
                 // Enfin, ajout des règles dans la hashmap temporaire.
                 tmpProductions.remove(key); // Suppression de l'ancienne règle,
                                             // si présente.
@@ -1193,7 +1172,6 @@ public class Grammaire {
                 tmpProductions.put(keyregle1 + " ", "> " + regle1);
 
                 keyregle2 = (key.replaceAll(" ", "") + "'");
-                System.out.println("1" + tmpProductions);
                 // Si la regle A' existe déjà, on rajoute un ' jusqu'à ce que la
                 // règle soit disponible
                 while (terminaux.contains(keyregle2)) {
@@ -1204,12 +1182,7 @@ public class Grammaire {
                 tmpProductions.put((keyregle2 + " "), "> " + regle2);
                 // On ajoute le nouveay terminal créé
                 terminaux.add((keyregle2));
-
-                System.out.println("tmpProductions : " + tmpProductions);
-
-                System.out.println("--------------");
             }
-            System.out.println("1" + tmpProductions);
             // On réinitialise les variables qu'on utilise, et on ajoute nos
             // productions à la hash
             regle1 = "";
@@ -1224,13 +1197,7 @@ public class Grammaire {
 
         // On met la nouvelle grammaire dans production
         productions.clear();
-
-        System.out.println("production vide :" + productions);
-        System.out.println("tmpProductions : " + tmpProductions);
         productions.putAll(tmpProductions);
-
-        System.out.println("production re-remplie : " + productions);
-        System.out.println("fini");
     }
 
     /**
