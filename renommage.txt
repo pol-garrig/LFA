@@ -1,0 +1,10 @@
+S > a b | a A b | A | B | A B | a
+A > A | A A | A B | B | A A B
+B > A | C | A C | b
+C > a b a
+
+
+
+
+
+

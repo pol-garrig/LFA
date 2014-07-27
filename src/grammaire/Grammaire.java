@@ -24,6 +24,7 @@ import com.sun.xml.internal.ws.wsdl.writer.document.Port;
  */
 public class Grammaire {
 
+    private int c = 2;
     // Liste des symboles non terminaux.
     private List<String> nonTerminaux;
 
@@ -92,7 +93,6 @@ public class Grammaire {
      * Methode pour suppimer les improductifs
      */
     public void suppressionImproductifs() {
-        System.out.println(productions);
         List<String> p1 = new ArrayList<>();
         List<String> p2 = new ArrayList<>();
         // temp liste de non terminaux temporaire
@@ -101,7 +101,7 @@ public class Grammaire {
         List<String> p = new ArrayList<>();
         // fin indique quand il faut s'arreter
         boolean fin = false;
-        String prod;
+        Set<String> tp = new HashSet<>();
 
         // je regarde s'il y a des productions pour tous les nonTerminaux, et je
         // mets a chaque fois les non terminaux avec producitons dans p
@@ -112,7 +112,6 @@ public class Grammaire {
                 p.add(nonTerminaux.get(g));
             }
         }
-        System.out.println("p = " + p);
         // je regarde tous les productions de chaque non Terminaux et cherche
         // les p1 et je les garde dans la liste p1
         for (int i = 0; i < p.size(); i++) {
@@ -133,7 +132,6 @@ public class Grammaire {
             }
 
         }
-        System.out.println("p1 = " + p1);
         // On regarde p2
         while (!fin) {
             // on copie les non terminaux vers p2
@@ -143,16 +141,18 @@ public class Grammaire {
                 // si avec un production on arrive a un elemente de p1
                 // on le garde dans p2
                 temp = produtions(productions.get(p.get(i) + " "));
-
                 for (int j2 = 0; j2 < temp.size(); j2++) {
                     for (int j = 0; j < p1.size(); j++) {
+
                         if (temp.get(j2).contains(p1.get(j))
-                                && (temp.get(j2).length() < 3)) {
+                                && temp.get(j2).length() < 3) {
                             p2.add(p.get(i));
                         }
-                        for (int j3 = 0; j3 < terminaux.size(); j3++) {
-                            if (temp.get(j2).contains(terminaux.get(j3))
-                                    && temp.get(j2).contains(p1.get(j))) {
+                        for (int j3 = 0; j3 < nonTerminaux.size(); j3++) {
+
+                            if (temp.get(j2).contains(p1.get(j))
+                                    && temp.get(j2).contains(
+                                            nonTerminaux.get(j3))) {
                                 p2.add(p.get(i));
                             }
                         }
@@ -161,7 +161,7 @@ public class Grammaire {
             }
             suppressionDupliProd(p1);
             // on regarde si p1 et p2 sont egaux
-            if (p2.containsAll(p1)) {
+            if (p2.containsAll(p1) && p2.contains(axiome)) {
                 // si sont egaux on fini
                 fin = true;
             } else {
@@ -171,8 +171,8 @@ public class Grammaire {
         }
         // et pour finir on copie les productifs dans l'arraylist des non
         // terminaux
-        System.out.println(p2);
-        nonTerminaux = p2;
+        tp.addAll(p2);
+        nonTerminaux = setVersList(tp);
         productions = suppressionProductions(nonTerminaux);
     }
 
@@ -188,6 +188,7 @@ public class Grammaire {
         List<String> p = new ArrayList<>();
         // Les productions possibles.
         Map<String, String> productionsSansEpsilons = new HashMap<>();
+        Set<String> tp = new HashSet<>();
 
         // je regarde s'il y a des productions pour tous les nonTerminaux, et je
         // mets a chaque fois les non terminaux avec producitons dans p
@@ -213,13 +214,17 @@ public class Grammaire {
                 cheminEpsilon.addAll(chemin(prodEpsilon.get(j)));
             }
         }
+        tp.addAll(cheminEpsilon);
+        cheminEpsilon = setVersList(tp);
+
         // On va remplacer les epsilons ...
         for (int i = 0; i < prodEpsilon.size(); i++) {
-
             p = produtions(productions.get(prodEpsilon.get(i) + " "));
             // On cherche les productions avec epsilons et on elimine les
             // Epsilons
             for (int j = 0; j < p.size(); j++) {
+                System.out.println(p.get(j));
+
                 if (p.get(j).contains("ε")) {
                     p.remove(p.get(j));
                     // On garde les producitons sans les epsilons
@@ -235,8 +240,7 @@ public class Grammaire {
             // On va remplacer les non terminaux pour les epsilons
             String s = "";
             String f = "";
-            for (int i = 0; i < productions.size(); i++) {
-
+            for (int i = 0; i < cheminEpsilon.size(); i++) {
                 f = productions.get(cheminEpsilon.get(i) + " ");
                 for (int j = 0; j < cheminEpsilon.size(); j++) {
                     // On reemplace les epsilons pour les productions
@@ -254,11 +258,13 @@ public class Grammaire {
                 productionsSansEpsilons.remove("S ");
                 productionsSansEpsilons.put("S ", f);
             }
-            productions = productionsSansEpsilons;
-            System.out.println(productions);
+            productions.putAll(productionsSansEpsilons);
         }
     }
 
+    /**
+     * Methode pour supprimir les variables renommables
+     */
     public void suppressionRenomage() {
         Map<String, List<String>> ren1 = new HashMap<>();
         Map<String, String> ren2 = new HashMap<>();
@@ -281,31 +287,35 @@ public class Grammaire {
     public Map<String, String> suppresionIdentiques(Map<String, String> m) {
         Map<String, String> i = new HashMap<>();
         List<String> d = new ArrayList<>();
-        String prod1, prod2,prod3, t;
+        String prod1, prod2, prod3, t, t2;
         for (int j = 0; j < nonTerminaux.size(); j++) {
             prod1 = m.get(nonTerminaux.get(j) + " ");
             for (int j2 = 0; j2 < nonTerminaux.size(); j2++) {
                 prod2 = m.get(nonTerminaux.get(j2) + " ");
-                if (prod1 != null && prod1.equals(prod2)
-                        && !nonTerminaux.get(j).equals(nonTerminaux.get(j2))) {
-
+                // On cherche deux productions identiques
+                if (prod1 != null
+                        && produtions(prod1).containsAll(produtions(prod2))
+                        && ((produtions(prod1).size() == produtions(prod2)
+                                .size()) && !nonTerminaux.get(j).equals(
+                                nonTerminaux.get(j2)))) {
+                    t2 = nonTerminaux.get(j2);
+                    // On elimine tout les non terminaux identiques dans les
+                    // productions et les non terminaux
                     m.remove(nonTerminaux.get(j2) + " ");
-                    nonTerminaux.remove(j2);
+                    nonTerminaux.remove(nonTerminaux.get(j2));
+                    // On reemplace le no terminaux identiques dans tous les
+                    // productions
                     for (int k = 0; k < nonTerminaux.size(); k++) {
-                        System.out.println(m);
-                        prod3 = m.get(nonTerminaux.get(j) + " ");
-                       System.out.println(prod3);
-                    
-                    t = suppressionDupliProd(produtions(prod2.replaceAll(
-                            nonTerminaux.get(j2), nonTerminaux.get(j))));
-                   
-                    m.put(nonTerminaux.get(j) + " ", t);
-                    }//TODO                    
-                    i = m;
+                        t = m.get(nonTerminaux.get(k) + " ");
+                        prod3 = suppressionDupliProd(produtions(t.replaceAll(
+                                t2, nonTerminaux.get(j))));
+                        m.put(nonTerminaux.get(k) + " ", supSpace(prod3));
+                    }
+
                 }
             }
         }
-      
+        i = m;
         return i;
     }
 
@@ -333,23 +343,36 @@ public class Grammaire {
                     }
                 }
             }
-
             d.removeAll(d2);
             productions.put(nonTerminaux.get(i) + " ", productionsString(d));
             d2.clear();
         }// On reemplace les renomage
+
         for (int i = 0; i < nonTerminaux.size(); i++) {
             d = ren.get(nonTerminaux.get(i) + " ");
-            prod = productions.get(nonTerminaux.get(i) + " ");
 
+            prod = productions.get(nonTerminaux.get(i) + " ");
             for (int j = 0; j < d.size(); j++) {
+
                 prod2 = ajouteProd(prod, productions.get(d.get(j)));
                 prod = prod2;
             }
-
-            temp.put(nonTerminaux.get(i) + " ", prod);
+            temp.put(nonTerminaux.get(i) + " ", supSpace(prod));
         }
         return temp;
+    }
+
+    /**
+     * Methode qui elimime les space a la fin
+     * 
+     * @param s
+     * @return
+     */
+    public String supSpace(String s) {
+        while (s.endsWith(" ")) {
+            s = s.substring(0, s.length() - 1);
+        }
+        return s;
     }
 
     /**
@@ -365,16 +388,15 @@ public class Grammaire {
         String prod;
         List<String> te = new ArrayList<>();
         Set<String> s = new HashSet<>();
+
         int e = 0, f = 0;
 
         // On cherche ren1 ,etc ..
+
         for (int j = 0; j < nonTerminaux.size(); j++) {
             s.clear();
-
             te = produtions(productions.get(nonTerminaux.get(j) + " "));
-
             // ren 0 On ajoute la meme variable S > S
-
             s.add(nonTerminaux.get(j) + " ");
             for (int i2 = 0; i2 < te.size(); i2++) {
 
@@ -396,15 +418,13 @@ public class Grammaire {
                     s.add(te.get(i2));
                 }
                 e = f = 0;
-
             }
-
             r.addAll(s);
-
             temp = copieList(r);
             ren1.put(nonTerminaux.get(j) + " ", temp);
             r.clear();
         }
+
         for (int i = 0; i < nonTerminaux.size(); i++) {
             s.clear();
             // On cherche ren 1 et 2 jusqu'a ren1 = ren2
@@ -592,6 +612,7 @@ public class Grammaire {
             temp += l.get(i).substring(0, l.get(i).length()) + "| ";
         }
         temp = temp.substring(0, temp.length() - 2);
+        temp = supSpace(temp);
         return temp;
     }
 
@@ -732,31 +753,25 @@ public class Grammaire {
         List<String> t = new ArrayList<>();
         List<String> t2 = new ArrayList<>();
         Set tp = new HashSet<>();
+        String tp2;
         int e = 0;
         // On charge les producitons des non terminaux qui sont productives et
         // accesibles
-        // System.out.println("prod = "+productions);
-
         for (int i = 0; i < nonTerminaux.size(); i++) {
             prod = productions.get(nonTerminaux.get(i) + " ");
             if (!nonTerminaux.contains(prod)) {
                 productions.remove(nonTerminaux.get(i));
             }
         }
-        System.out.println(nonTerminaux);
         for (int i = 0; i < nonTerminaux.size(); i++) {
             t = produtions(productions.get(nonTerminaux.get(i) + " "));
-            // System.out.println("t >>>>>>>>>>>>>>>>>>>>>" + t);
             for (int j = 0; j < t.size(); j++) {
-                // System.out.println(t.get(j));
                 String[] f = t.get(j).split(" ");
-                // System.out.println("================");
                 for (int k = 0; k < f.length; k++) {
                     if (nonTerminaux.contains(f[k]) || terminaux.contains(f[k])) {
                         e++;
 
                     }
-                    // System.out.println(e);
                     if (e == f.length) {
                         tp.add(t.get(j));
                     }
@@ -765,12 +780,14 @@ public class Grammaire {
                 t2.addAll(tp);
                 tp.clear();
             }
-
-            temp.put(nonTerminaux.get(i) + " ", productionsString(t2));
-            // System.out.println(t2);
+            tp2 = productionsString(t2);
+            /*
+             * if (tp2.endsWith(" ")) { System.out.println(); tp2 =
+             * tp2.substring(0, productionsString(t2).length() - 1); }
+             */
+            temp.put(nonTerminaux.get(i) + " ", supSpace(tp2));
             t2.clear();
         }
-        // System.out.println(temp);
 
         return temp;
     }
@@ -828,8 +845,6 @@ public class Grammaire {
                             0 + numeroCase);
                     List<String> droite = pyramide.getListProductions(
                             numeroLigne - 1 - i, numeroCase + 1 + i);
-
-                    // ici ça pue
 
                     // On regarde s'il existe une produciton qui contient la
                     // combinaison de deux productions des deux cases en dessous
@@ -904,11 +919,11 @@ public class Grammaire {
     /**
      * Met la grammaire sous forme normale de Chomsky.
      */
-    public void Chomsky() {
+    public void chomsky() {
         nettoyer();
         suppressionEpsilons();
-        // TODO Fernando
-        // suppressionRenomage();
+        suppressionRenomage();
+        System.out.println(productions);
         traiterTerminauxChomsky();
         traiterReglesChomsky();
     }
@@ -926,15 +941,22 @@ public class Grammaire {
             key = it.next();
             prod = productions.get(key);
             for (String term : terminaux) {
-                prod = prod.replace(term, "C" + term);
+                // prod = prod.replace(term, "C" + term);
+                prod = prod.replace(term, "C" + c);
+                c++;
             }
+            // c++;
+            c = 2;
             productions.put(key, prod);
         }
-
+        // c = 2;
         // Crée les règles
         for (String term : terminaux) {
-            ajouterRegle("C" + term + " ", " > " + term);
+            // ajouterRegle("C" + term + " ", " > " + term);
+            ajouterRegle("C" + c + " ", " > " + term);
+            c++;
         }
+
     }
 
     /**
@@ -983,7 +1005,8 @@ public class Grammaire {
             key = it.next();
             System.out.print(key + "-");
             // Parcours des productions
-            for (String prod : produtions(productions.get(key))) {
+            for (String prod : produtions(productions.get(key).replaceAll(" ",
+                    ""))) {
 
                 if (prod.contains(variable) && !retour.contains(variable)) {
                     System.out.print("->BONNE!");
@@ -1008,39 +1031,57 @@ public class Grammaire {
     public void formeNormaleGreibach() {
         // Sans renommage
         // Sans E-production
-
-        String[] tabProductions = null;
-
-        Set<String> keys = productions.keySet();
-        Iterator<String> it = keys.iterator();
-        String key;
-
-        while (it.hasNext()) {
-            key = it.next();
-
-            // Parcours des productions
-            for (String prod : produtions(productions.get(key))) {
-                // Pour chaque production, on regarde s'il y a des recursivités
-                // gauches et on les enlève
-
-            }
+        nettoyer();
+        suppressionEpsilons();
+        suppressionRenomage();
+        Map<String, Integer> ordre = new HashMap<String, Integer>();
+        String prod;
+        boolean mont;
+        ordre = ordreVarialbes(productions);
+        supRecursiviteGauche();
+        for (int i = 0; i < nonTerminaux.size(); i++) {
+            prod = productions.get(nonTerminaux.get(i)+" ");
+            mont = estMontante(nonTerminaux.get(i),prod,ordre);
+            System.out.println(mont);
         }
+
+        /*
+         * while (it.hasNext()) { key = it.next();
+         * 
+         * // Parcours des productions for (String prod :
+         * produtions(productions.get(key))) { // Pour chaque production, on
+         * regarde s'il y a des recursivités // gauches et on les enlève
+         * 
+         * } }
+         */
     }
 
     // Puis ensuite on fait commencer toute règle par un terminal
-
     /**
-     * Mets la grammaire sous forme normale de Greibach.
-     */
-    /*
-     * public void formeNormaleGreibach() { nettoyer(); suppressionEpsilons();
-     * // TODO Fernando décommenter suppressionRenomage()
-     * //suppressionRenomage();
+     * Methode qui fixe l'ordre des variables
      * 
-     * for(int i = 1; i < productions.size(); i++) {
-     * 
-     * } }
+     * @param p
+     * @return
      */
+    private Map<String, Integer> ordreVarialbes(Map<String, String> p) {
+        Map<String, Integer> ordre = new HashMap<String, Integer>();
+        int k = 0;
+        ordre.put("S ", k++);
+
+        for (int i = 0; i < nonTerminaux.size(); i++) {
+            for (int j = 0; j < nonTerminaux.size(); j++) {
+                if (p.get(nonTerminaux.get(i) + " ").contains(
+                        nonTerminaux.get(j))
+                        && !ordre.containsKey(nonTerminaux.get(j) + " ")) {
+                    ordre.put(nonTerminaux.get(j) + " ", k);
+                    k++;
+
+                }
+            }
+        }
+        return ordre;
+
+    }
 
     /**
      * Dit si la règle passée en paramètre est montante.
@@ -1051,9 +1092,19 @@ public class Grammaire {
      *            la production correspondante
      * @return true si la règle est montante, faux sinon
      */
-    private boolean estMontante(String nonTerminal, String prod) {
-        // TODO
-        return false;
+    public boolean estMontante(String s, String s2, Map<String, Integer> ordre) {
+        boolean mont = true;
+        int i = ordre.get(s+" ");
+        int i2;
+        for (int j = 0; j < nonTerminaux.size(); j++) {
+            if (s2.contains(nonTerminaux.get(j))) {
+                i2 = ordre.get(nonTerminaux.get(j) + " ");
+                if (i < i2) {
+                    mont = false;
+                }
+            }
+        }
+        return mont;
     }
 
     /**
@@ -1350,15 +1401,11 @@ public class Grammaire {
         // System.out.println(g.algorithmeCYK("aabbab"));
         // g.supRecursiviteGauche();
         // System.out.println(g.nonTerminaux);
-        // g.suppressionImproductifs();
-        // g.suppressionInaccesible();
-        // / System.out.println("dsdds" + g.nonTerminaux);
-
-        g.suppressionRenomage();
-        // g.suppressionProductions(g.nonTerminaux);
-        // System.out.println(g.productions);
-        // System.out.println("dsdds" + g.nonTerminaux);
-        // g.suppressionProductions(g.nonTerminaux);
+        // g.supRecursiviteGauche();
+        System.out.println(g);
+        System.out.println(g.nonTerminaux);
+        g.formeNormaleGreibach();
+        System.out.println("********imprdo***********************");
         System.out.println(g);
 
     }
