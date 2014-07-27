@@ -1097,6 +1097,8 @@ public class Grammaire {
         int i = ordre.get(s+" ");
         int i2;
         for (int j = 0; j < nonTerminaux.size(); j++) {
+            System.out.println(nonTerminaux.get(j));
+            
             if (s2.contains(nonTerminaux.get(j))) {
                 i2 = ordre.get(nonTerminaux.get(j) + " ");
                 if (i < i2) {
