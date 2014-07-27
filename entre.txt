@@ -1,5 +1,7 @@
-S > A | B B | a | C 
-B > C | v | C B
-A > A a | b
+S > a b |B
+A > A | A A | A B | B | A A B
+B > A | C | A C | b
+C > C a b a
+F > F a
 
 

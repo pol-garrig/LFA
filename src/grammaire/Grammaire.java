@@ -132,6 +132,7 @@ public class Grammaire {
             }
 
         }
+        System.out.println(p1);
         // On regarde p2
         while (!fin) {
             // on copie les non terminaux vers p2
@@ -151,8 +152,9 @@ public class Grammaire {
                         for (int j3 = 0; j3 < nonTerminaux.size(); j3++) {
 
                             if (temp.get(j2).contains(p1.get(j))
-                                    && temp.get(j2).contains(
-                                            nonTerminaux.get(j3))) {
+
+                            && temp.get(j2).contains(nonTerminaux.get(j3))
+                                    && !temp.get(j2).contains(p.get(i))) {
                                 p2.add(p.get(i));
                             }
                         }
@@ -825,7 +827,7 @@ public class Grammaire {
                 // à chaque fois, numeroLigne cas possibles de combinaisons de
                 // cases. (sachant qu'oncommence à 0)
                 for (int i = 0; i < numeroLigne; i++) {
-                   
+
                     List<String> gauche = pyramide.getListProductions(0 + i,
                             0 + numeroCase);
                     List<String> droite = pyramide.getListProductions(
@@ -1003,9 +1005,11 @@ public class Grammaire {
         boolean mont;
         ordre = ordreVarialbes(productions);
         supRecursiviteGauche();
+        System.out.println("pord = " + productions);
         for (int i = 0; i < nonTerminaux.size(); i++) {
-            prod = productions.get(nonTerminaux.get(i)+" ");
-            mont = estMontante(nonTerminaux.get(i),prod,ordre);
+            System.out.println(nonTerminaux.get(i));
+            prod = productions.get(nonTerminaux.get(i));
+            mont = estMontante(nonTerminaux.get(i), prod, ordre);
             System.out.println(mont);
         }
 
@@ -1058,12 +1062,13 @@ public class Grammaire {
      */
     public boolean estMontante(String s, String s2, Map<String, Integer> ordre) {
         boolean mont = true;
-        int i = ordre.get(s+" ");
+        int i = ordre.get(s + " ");
         int i2;
         for (int j = 0; j < nonTerminaux.size(); j++) {
             System.out.println(nonTerminaux.get(j));
-            
-            if (s2.contains(nonTerminaux.get(j))) {
+            System.out.println(s);
+            System.out.println(s2);
+            if (s2.contains(nonTerminaux.get(j) + " ")) {
                 i2 = ordre.get(nonTerminaux.get(j) + " ");
                 if (i < i2) {
                     mont = false;
@@ -1134,7 +1139,7 @@ public class Grammaire {
                             .add(variablesDeLaProduction[i]);
                 }
                 // Sinon si c'est un terminal
-                else if (variablesDeLaProduction[i].length() == 1){
+                else if (variablesDeLaProduction[i].length() == 1) {
                     terminauxDeLaProduction.add(variablesDeLaProduction[i]);
                 }
                 // S'il y a d'autres types, alors la grammaire n'était pas prête
@@ -1160,7 +1165,7 @@ public class Grammaire {
                 // A -> b.A' | b1A' | ...
                 // En utilisant regle1 comme intermediaire
                 for (int i = 0; i < terminauxDeLaProduction.size(); i++) {
-                    regle1 += (terminauxDeLaProduction.get(i)
+                    regle1 += (terminauxDeLaProduction.get(i) + " "
                             + key.replaceAll(" ", "") + "'");
 
                     // Ajout d'un séparateur, sauf pour le dernier cas
@@ -1174,7 +1179,7 @@ public class Grammaire {
                 regle2 += "ε" + " | "; // Ajout du epsilon
                 for (int i = 0; i < recursivitesGauchesDeLaProduction.size(); i++) {
                     regle2 += (recursivitesGauchesDeLaProduction.get(i)
-                            .substring(1) + key.replaceAll(" ", "") + "'");
+                            .substring(1) + " " + key.replaceAll(" ", "") + "'");
 
                     // Ajout d'un séparateur, sauf pour le dernier cas
                     if (i <= recursivitesGauchesDeLaProduction.size() - 2)
@@ -1185,7 +1190,7 @@ public class Grammaire {
                 tmpProductions.remove(key); // Suppression de l'ancienne règle,
                                             // si présente.
                 keyregle1 = key.replaceAll(" ", "");
-                tmpProductions.put(keyregle1, regle1);
+                tmpProductions.put(keyregle1 + " ", "> " + regle1);
 
                 keyregle2 = (key.replaceAll(" ", "") + "'");
                 System.out.println("1" + tmpProductions);
@@ -1196,7 +1201,7 @@ public class Grammaire {
                 }
 
                 // Puis on l'ajoute
-                tmpProductions.put((keyregle2 + " > "), regle2);
+                tmpProductions.put((keyregle2 + " "), "> " + regle2);
                 // On ajoute le nouveay terminal créé
                 terminaux.add((keyregle2));
 
@@ -1365,7 +1370,8 @@ public class Grammaire {
         // g.supRecursiviteGauche();
         System.out.println(g);
         System.out.println(g.nonTerminaux);
-        g.formeNormaleGreibach();
+        // g.formeNormaleGreibach();
+        g.suppressionImproductifs();
         System.out.println("********imprdo***********************");
         System.out.println(g);
 
