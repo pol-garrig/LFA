@@ -1125,23 +1125,18 @@ public class Grammaire {
             for (int i = 0; i < variablesDeLaProduction.length; i++) {
                 // Si elle finit par un terminal : forme Aa (deux caracteres et
                 // le dernier caractère appartient aux terminaux
-                if (variablesDeLaProduction[i].length() == 2
-                        && terminaux.contains(variablesDeLaProduction[i]
-                                .substring(1))) {
+                if (variablesDeLaProduction[i].length() == 2) {
                     System.out.println("Recursivité gauche : "
                             + variablesDeLaProduction[i]);
                     recursivitesGauchesDeLaProduction
                             .add(variablesDeLaProduction[i]);
                 }
                 // Sinon si c'est un terminal
-                else if (terminaux.contains(variablesDeLaProduction[i])) {
-                    System.out.println("Terminal : "
-                            + variablesDeLaProduction[i]);
+                else if (variablesDeLaProduction[i].length() == 1){
                     terminauxDeLaProduction.add(variablesDeLaProduction[i]);
                 }
                 // S'il y a d'autres types, alors la grammaire n'était pas prête
-                // à subir l'algorithme de suppression
-                // De la récursivité gauche
+                // à subir l'algorithme de suppression de la récursivité gauche
                 else {
                     System.out
                             .println("ERREUR : Recursivité gauche : echec d'identification d'un élément"
